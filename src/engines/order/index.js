@@ -14,8 +14,10 @@ class OrderEngine {
    * Creates a new order.
    * @param {string} serviceType 
    * @param {string} [tableNumber]
+   * @param {string} [externalSource]
+   * @param {string} [externalReferenceId]
    */
-  createOrder(serviceType = 'DINE_IN', tableNumber = null) {
+  createOrder(serviceType = 'DINE_IN', tableNumber = null, externalSource = null, externalReferenceId = null) {
     const status = identityEngine.getStatus();
     const user = authEngine.getCurrentUser();
 
@@ -28,6 +30,8 @@ class OrderEngine {
       cashierId: user.id,
       serviceType,
       tableNumber,
+      externalSource,
+      externalReferenceId
     });
 
     this.activeOrders.set(order.id, order);
@@ -182,4 +186,8 @@ class OrderEngine {
   }
 }
 
-export default new OrderEngine();
+import persistenceManager from '../PersistenceManager.js';
+
+const instance = new OrderEngine();
+persistenceManager.registerEngine('order', instance);
+export default instance;

@@ -75,4 +75,6 @@ class IdentityEngine {
   }
 }
 
-export default new IdentityEngine();
+const instance = new IdentityEngine();
+persistenceManager.registerEngine('identity', instance);
+export default instance;

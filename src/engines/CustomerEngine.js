@@ -118,4 +118,6 @@ class CustomerEngine {
   }
 }
 
-export default new CustomerEngine();
+const instance = new CustomerEngine();
+persistenceManager.registerEngine('customer', instance);
+export default instance;

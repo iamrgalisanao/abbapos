@@ -1,25 +1,17 @@
 import storageEngine from './StorageEngine.js';
-import auditEngine from './audit/index.js';
-import identityEngine from './identity.js';
-import receiptEngine from './receipt/index.js';
-import inventoryEngine from './inventory/index.js';
-import customerEngine from './CustomerEngine.js';
-import reportingEngine from './reports/index.js';
-import orderEngine from './order/index.js';
-import catalogEngine from './catalog/index.js';
 
 class PersistenceManager {
   constructor() {
-    this.engines = {
-      identity: identityEngine,
-      receipt: receiptEngine,
-      inventory: inventoryEngine,
-      customer: customerEngine,
-      reports: reportingEngine,
-      audit: auditEngine,
-      order: orderEngine,
-      catalog: catalogEngine
-    };
+    this.engines = {};
+  }
+
+  /**
+   * Registers an engine for persistence.
+   * @param {string} name 
+   * @param {Object} engine 
+   */
+  registerEngine(name, engine) {
+    this.engines[name] = engine;
   }
 
   /**

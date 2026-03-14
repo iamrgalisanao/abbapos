@@ -24,7 +24,23 @@ This document governs **how** software is built, changed, tested, reviewed, docu
 
 ---
 
-## 2) Project Outcome
+## 2) Technology Stack & Architecture
+
+The application is evolving from a zero-dependency, headless core to a full-stack platform.
+
+### Phase 1-4 (Core Logic)
+*   **Runtime**: Node.js (ES Modules).
+*   **Logic**: Pure Vanilla JavaScript (Zero-dependency).
+*   **Persistence**: Atomic File-based JSON Storage (Local).
+*   **Purpose**: Resilient, BIR-compliant local transaction core.
+
+### Phase 5+ (Platform Scale)
+*   **Frontend**: **ReactJS** (Web interface).
+*   **Backend**: **Laravel (LTS) PHP** (Enterprise-grade API & Orchestration).
+*   **Database**: **MySQL** (Relational data & persistence).
+*   **Architecture**: Hybrid approach where the local JS engines can function within the React client or be mirrored/persisted by the Laravel backend.
+
+---
 
 The target system is a restaurant POS that supports commercial features commonly expected in modern F&B operations, including:
 
@@ -265,21 +281,21 @@ Build next:
 * discounts/promotions,
 * inventory movement automation,
 * low-stock alerts,
-* supplier management,
-* store credits / loyalty,
-* customer profiles,
-* reporting dashboards,
-* branch/store analytics.
+## Phase 4: Integrations & Scale (75% Complete)
+- [x] **Store Credits / Loyalty**: Customer point systems and credits.
+- [x] **Customer Profiles**: Tracking history and preferences.
+- [x] **Persistence Layer**: Atomic file-based state preservation.
+- [ ] **Accounting export**: (Quickbooks/Xero/SAP).
+- [ ] **Web/Online ordering**: Integration.
+- [ ] Multi-branch central reporting.
+- [ ] Offline sync resilience (Cloud/Local orchestration).
 
-### Phase 4 — Integrations and Scale
-
-Build next:
-
-* accounting export/integration,
-* web ordering,
-* centralized reporting,
-* multi-branch controls,
-* sync resilience,
+## Phase 5: Modernization & Web Integration (Future Stack)
+- [ ] **Frontend Migration**: Porting UI logic to **ReactJS**.
+- [ ] **Backend Orchestration**: Implementing **Laravel (LTS) PHP** API.
+- [ ] **Production Database**: Transitioning from file-based to **MySQL**.
+- [ ] **Cloud Sync**: Real-time multi-branch synchronization.
+- [ ] **API First**: Exposing POS capabilities via Laravel endpoints.
 * observability enhancements,
 * deployment/version governance.
 

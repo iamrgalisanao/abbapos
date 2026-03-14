@@ -3,8 +3,10 @@
  * @property {string} id - Unique Order ID.
  * @property {string} terminalId - Origin terminal.
  * @property {string} cashierId - Origin cashier.
- * @property {string} serviceType - DINE_IN, TAKEOUT, DELIVERY.
+ * @property {string} serviceType - DINE_IN, TAKEOUT, DELIVERY, WEB_ORDER, APP_DELIVERY.
  * @property {string} [tableNumber] - Table associated (for DINE_IN).
+ * @property {string} [externalSource] - WEB, FOODPANDA, GRAB, etc.
+ * @property {string} [externalReferenceId] - Reference ID from external system.
  * @property {string} status - DRAFT, HELD, PAID, VOIDED, REFUNDED.
  * @property {Array<import('./OrderLineItem.js').default>} items - List of items.
  */
@@ -16,6 +18,8 @@ class Order {
     this.cashierId = config.cashierId;
     this.serviceType = config.serviceType || 'DINE_IN';
     this.tableNumber = config.tableNumber || null;
+    this.externalSource = config.externalSource || null;
+    this.externalReferenceId = config.externalReferenceId || null;
     this.status = config.status || 'DRAFT';
     this.items = config.items || [];
     this.createdAt = config.createdAt || new Date().toISOString();
@@ -47,6 +51,8 @@ class Order {
       cashierId: this.cashierId,
       serviceType: this.serviceType,
       tableNumber: this.tableNumber,
+      externalSource: this.externalSource,
+      externalReferenceId: this.externalReferenceId,
       status: this.status,
       items: this.items.map(item => item.toJSON()),
       subtotal: this.subtotal,

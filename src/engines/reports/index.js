@@ -142,4 +142,8 @@ class ReportingEngine {
   }
 }
 
-export default new ReportingEngine();
+import persistenceManager from '../PersistenceManager.js';
+
+const instance = new ReportingEngine();
+persistenceManager.registerEngine('reports', instance);
+export default instance;

@@ -159,4 +159,8 @@ class ReceiptEngine {
   }
 }
 
-export default new ReceiptEngine();
+import persistenceManager from '../PersistenceManager.js';
+
+const instance = new ReceiptEngine();
+persistenceManager.registerEngine('receipt', instance);
+export default instance;

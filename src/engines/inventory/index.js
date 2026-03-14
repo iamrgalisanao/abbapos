@@ -185,4 +185,6 @@ class InventoryEngine {
   }
 }
 
-export default new InventoryEngine();
+const instance = new InventoryEngine();
+persistenceManager.registerEngine('inventory', instance);
+export default instance;

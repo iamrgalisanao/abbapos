@@ -1,1 +1,1 @@
-{"store":{"storeName":"Persistence Test Shop","tin":"123-456-789-000","branchCode":"PN-01","address":"123 Drip Lane"},"terminal":{"terminalId":"T01","accreditationNumber":"ACC-888","ptuNumber":"PTU-999"},"isInitialized":true}
+{"store":{"storeName":"Web Order Test Shop","tin":"000-111-222-333","branchCode":"WEB-01"},"terminal":{"terminalId":"T01","ptuNumber":"PTU-W-01"},"isInitialized":false}

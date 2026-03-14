@@ -25,7 +25,7 @@ This document outlines the development phases and feature statuses for the BIR-C
 - [x] **Supplier Management**: Purchase orders and receiving.
 - [x] **Reporting Dashboards**: X-Read and Z-Read.
 
-## Phase 4: Customer Engagement & Scale (In Progress)
+## Phase 4: Integrations & Scale (75% Complete)
 - [x] **Store Credits / Loyalty**: Customer point systems and credits.
 - [x] **Customer Profiles**: Tracking history and preferences.
 - [x] **Persistence Layer**: Atomic file-based state preservation.
@@ -33,3 +33,9 @@ This document outlines the development phases and feature statuses for the BIR-C
 - [ ] **Web/Online ordering**: Integration.
 - [ ] Multi-branch central reporting.
 - [ ] Offline sync resilience (Cloud/Local orchestration).
+
+## Phase 5: Modernization & Web Integration (Future Stack)
+- [ ] **Frontend**: Porting to **ReactJS**.
+- [ ] **Backend**: **Laravel (LTS) PHP** framework.
+- [ ] **Persistence**: Transitioning to **MySQL**.
+- [ ] **API**: Headless-first REST API orchestration.

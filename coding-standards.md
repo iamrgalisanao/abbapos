@@ -26,3 +26,8 @@ Follow the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guar
 - Strictly follow the formal [testing-standards.md](testing-standards.md).
 - Every feature must have a corresponding verification script in the `tests/` directory.
 - Regression tests must be run for any changes to core engines (Tax, Receipt, Settlement).
+
+## Future Stack Standards (Phase 5+)
+- **Frontend**: Follow React best practices (Hooks, Functional Components, atomic design).
+- **Backend**: PSR-12 for PHP, Laravel's clean architecture, and Eloquent for MySQL interactions.
+- **Interoperability**: Logic from existing JS engines should be ported or bridged to maintain "source of truth" consistency.

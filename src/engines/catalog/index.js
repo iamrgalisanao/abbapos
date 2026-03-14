@@ -99,4 +99,8 @@ class CatalogEngine {
   }
 }
 
-export default new CatalogEngine();
+import persistenceManager from '../PersistenceManager.js';
+
+const instance = new CatalogEngine();
+persistenceManager.registerEngine('catalog', instance);
+export default instance;

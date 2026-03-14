@@ -85,4 +85,6 @@ class ComplianceAuditEngine {
   }
 }
 
-export default new ComplianceAuditEngine();
+const instance = new ComplianceAuditEngine();
+persistenceManager.registerEngine('audit', instance);
+export default instance;
