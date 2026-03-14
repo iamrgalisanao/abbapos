@@ -26,11 +26,12 @@ This document governs **how** software is built, changed, tested, reviewed, docu
 
 ## 2) Technology Stack & Architecture
 
-The application is evolving from a zero-dependency, headless core to a full-stack platform.
+The system follows a **Monorepo** architecture to ensure consistency between compliance logic and the user interface.
 
-### Phase 1-4 (Core Logic)
-*   **Runtime**: Node.js (ES Modules).
-*   **Logic**: Pure Vanilla JavaScript (Zero-dependency).
+- **Infrastructure**:
+    - `core/`: (Shared) BIR-compliant JS engines and business logic.
+    - `client/`: (Frontend) ReactJS + Vite + Tailwind/Vanilla CSS.
+    - `server/`: (Backend) Laravel + PHP 8.4 + MySQL.
 *   **Persistence**: Atomic File-based JSON Storage (Local).
 *   **Purpose**: Resilient, BIR-compliant local transaction core.
 

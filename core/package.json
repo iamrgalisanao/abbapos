@@ -15,5 +15,11 @@
     "test:settle": "node tests/verify_settlement.js",
     "test": "npm run test:identity && npm run test:tax && npm run test:sales"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "exports": {
+    "./identity": "./engines/identity.js",
+    "./tax": "./engines/tax/index.js",
+    "./order": "./engines/order/index.js",
+    "./audit": "./engines/audit/index.js"
+  }
 }
