@@ -18,17 +18,17 @@ This document outlines the development phases and feature statuses for the BIR-C
 - [x] Split/Merge bill behavior
 - [x] Payment and settlement flow
 
-## Phase 3: Commercial Operations (In Progress)
+## Phase 3: Commercial Operations (100% Complete)
 - [x] **Discounts/Promotions**: Percentage/Fixed and SC/PWD exemptions.
 - [x] **Inventory Movement**: Automatic deduction on sale.
 - [x] **Low-stock Alerts**: Real-time notifications for kitchen/stock personnel.
-- [ ] **Supplier Management**: Purchase orders and receiving.
+- [x] **Supplier Management**: Purchase orders and receiving.
+- [x] **Reporting Dashboards**: X-Read and Z-Read.
+
+## Phase 4: Customer Engagement & Scale (In Progress)
 - [ ] **Store Credits / Loyalty**: Customer point systems and credits.
 - [ ] **Customer Profiles**: Tracking history and preferences.
-- [ ] **Reporting Dashboards**: X-Read and Z-Read.
-
-## Phase 4: Integrations & Scale
-- [ ] Accounting export (Quickbooks/Xero/SAP).
-- [ ] Web/Online ordering integration.
+- [ ] **Accounting export**: (Quickbooks/Xero/SAP).
+- [ ] **Web/Online ordering**: Integration.
 - [ ] Multi-branch central reporting.
 - [ ] Offline sync resilience (Cloud/Local orchestration).
