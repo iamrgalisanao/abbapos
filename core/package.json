@@ -20,6 +20,9 @@
     "./identity": "./engines/identity.js",
     "./tax": "./engines/tax/index.js",
     "./order": "./engines/order/index.js",
-    "./audit": "./engines/audit/index.js"
+    "./audit": "./engines/audit/index.js",
+    "./auth": "./engines/auth.js",
+    "./settlement": "./engines/settlement.js",
+    "./pricing": "./engines/pricing/index.js"
   }
 }

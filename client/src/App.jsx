@@ -10,9 +10,10 @@ import './App.css'
 function App() {
   const [status, setStatus] = useState(null)
   const [cartItems, setCartItems] = useState([])
-  const [syncStatus, setSyncStatus] = useState('IDLE')
+  const [syncStatus, setSyncStatus] = useState('IDLE') // IDLE, SYNCING, SUCCESS, ERROR
   const [showCheckout, setShowCheckout] = useState(false)
   const [receipt, setReceipt] = useState(null)
+  const [transactions, setTransactions] = useState([]) // For offline sync queue
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
@@ -24,18 +25,15 @@ function App() {
 
   const processCheckout = () => {
     try {
-      // 1. Create native Order via Core
       const order = orderEngine.createOrder('DINE_IN')
       
-      // 2. Add Cart Items to Order
       cartItems.forEach(item => {
         orderEngine.addItem(order.id, item.id, item.qty, {})
       })
 
-      // 3. Process Settlement via Core
       const settlementDetails = {
         method: 'CASH',
-        amountPaid: order.total // exact amount for demo
+        amountPaid: order.total
       }
       
       const { receipt: officialReceipt } = settlementEngine.settleOrder(order.id, settlementDetails)
@@ -43,7 +41,6 @@ function App() {
       setReceipt(officialReceipt)
       setShowCheckout(true)
       
-      // 4. Queue for Cloud Sync
       const syncedOrder = {
         id: order.id,
         terminalId: status.terminal.terminalId,
@@ -58,8 +55,6 @@ function App() {
         synced: false
       }
       setTransactions([syncedOrder, ...transactions])
-      
-      // Reset Cart
       setCartItems([])
     } catch (err) {
       alert(`Checkout Failed: ${err.message}`)
@@ -95,15 +90,13 @@ function App() {
     // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1500))
     try {
-      // In a real app, you'd send transactions to your backend
-      // For this demo, we just mark them as synced
       setTransactions(prev => prev.map(t => ({ ...t, synced: true })))
       setSyncStatus('SUCCESS')
     } catch (error) {
       console.error("Sync failed:", error)
       setSyncStatus('ERROR')
     } finally {
-      setTimeout(() => setSyncStatus('IDLE'), 3000) // Reset status after a delay
+      setTimeout(() => setSyncStatus('IDLE'), 3000)
     }
   }
 
@@ -111,101 +104,169 @@ function App() {
   const cartVat = cartSubtotal * 0.12 // Simple mock VAT for UI phase
   const cartTotal = cartSubtotal + cartVat
 
-  if (!status) return <div className="loading ripple">Initializing System Core...</div>
+  if (!status) return <div className="dashboard-root" style={{justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '24px'}}>Initializing System Core...</div>
 
   return (
     <div className="dashboard-root">
-      <header className="glass-panel main-header">
-        <div className="brand">
-          <div className="logo-orb pulse"></div>
-          <div>
-            <h1>{status.store?.storeName || 'ABBA POS'}</h1>
-            <p className="dim">Terminal {status.terminal?.terminalId || 'Offline'}</p>
+      
+      {/* Top Header */}
+      <header className="main-header">
+        <div className="brand-section">
+          <div className="logo-orb">
+            <span className="material-symbols-outlined">restaurant</span>
           </div>
+          <div className="logo-text">ABBA <span>POS</span></div>
         </div>
-        <div className="compliance-badge badge">
-          PCI-DSS & BIR COMPLIANT
+        
+        <div className="header-badges">
+          <div className="terminal-badge">
+            <span className="material-symbols-outlined">terminal</span>
+            <span>Terminal ID: <span className="id">#{status.terminal?.terminalId || 'Offline'}</span></span>
+          </div>
+          <div className="compliance-badge">
+            <span className="material-symbols-outlined">verified_user</span>
+            <span>PCI-DSS & BIR COMPLIANT</span>
+          </div>
         </div>
       </header>
 
+      {/* Main Content Area */}
       <main className="pos-layout">
-        <section className="catalog-grid">
-          {MOCK_CATALOG.map(product => (
-            <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
-              <div className="product-icon">{product.image}</div>
-              <div className="product-name">{product.name}</div>
-              <div className="product-price">₱{product.price.toFixed(2)}</div>
-            </div>
-          ))}
+        
+        {/* Product Catalog Grid */}
+        <section className="catalog-section">
+          <div className="category-header">
+            <h1>Menu Categories</h1>
+            <p>Select items to add to current order</p>
+          </div>
+          <div className="catalog-grid">
+            {MOCK_CATALOG.map(product => (
+              <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
+                <div className="product-image-placeholder">
+                  {product.image}
+                  <div className="product-hover-overlay">
+                    <span className="material-symbols-outlined">add_circle</span>
+                  </div>
+                </div>
+                <div className="product-info">
+                  <h3>{product.name}</h3>
+                  <div className="product-price-row">
+                    <span className="product-price">₱{product.price.toFixed(2)}</span>
+                    <span className="product-category-tag">{product.category}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section className="glass-panel cart-panel">
-          <h2>Current Order</h2>
+        {/* Sidebar Cart Panel */}
+        <aside className="cart-sidebar">
+          <div className="cart-header">
+            <div>
+              <h2>Current Order</h2>
+              <p>Terminal: <span>{status.terminal?.terminalId}</span></p>
+            </div>
+            <div className="cart-icon-bg">
+              <span className="material-symbols-outlined">shopping_basket</span>
+            </div>
+          </div>
+
           <div className="cart-items">
             {cartItems.length === 0 ? (
-              <p className="dim" style={{textAlign: 'center', marginTop: '20px'}}>Cart is empty.</p>
+              <div className="empty-cart">
+                <span className="material-symbols-outlined" style={{fontSize: '48px', opacity: 0.5}}>receipt_long</span>
+                <p>Order is empty</p>
+              </div>
             ) : (
               cartItems.map(item => (
                 <div key={item.id} className="cart-item">
-                  <div>
+                  <div className="cart-item-icon">
+                    <span className="material-symbols-outlined">{item.category === 'Drinks' ? 'coffee_maker' : item.category === 'Sides' ? 'tapas' : 'lunch_dining'}</span>
+                  </div>
+                  <div className="cart-item-details">
                     <h4>{item.name}</h4>
                     <p>₱{item.price.toFixed(2)}</p>
                   </div>
-                  <div className="qty-controls">
-                    <button className="qty-btn" onClick={() => updateQty(item.id, -1)}>-</button>
-                    <span className="mono bold" style={{width: '20px', textAlign: 'center'}}>{item.qty}</span>
-                    <button className="qty-btn" onClick={() => updateQty(item.id, 1)}>+</button>
+                  <div className="cart-qty-controls">
+                    <button className="cart-qty-btn" onClick={() => updateQty(item.id, -1)}>
+                      <span className="material-symbols-outlined" style={{fontSize: '16px'}}>remove</span>
+                    </button>
+                    <span className="cart-qty-value">{item.qty}</span>
+                    <button className="cart-qty-btn add" onClick={() => updateQty(item.id, 1)}>
+                      <span className="material-symbols-outlined" style={{fontSize: '16px'}}>add</span>
+                    </button>
+                  </div>
+                  <div className="cart-item-total">
+                    ₱{(item.price * item.qty).toFixed(2)}
                   </div>
                 </div>
               ))
             )}
           </div>
-          
-          <div className="cart-totals">
-            <div className="total-row dim">
-              <span>Subtotal</span>
-              <span>₱{cartSubtotal.toFixed(2)}</span>
+
+          <div className="cart-footer">
+            <div className="cart-totals">
+              <div className="totals-row">
+                <span className="label">Subtotal</span>
+                <span className="value">₱{cartSubtotal.toFixed(2)}</span>
+              </div>
+              <div className="totals-row">
+                <span className="label">VAT (12%)</span>
+                <span className="value">₱{cartVat.toFixed(2)}</span>
+              </div>
+              <div className="totals-grand">
+                <span className="label">Grand Total</span>
+                <span className="value">₱{cartTotal.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="total-row dim">
-              <span>VAT (12%)</span>
-              <span>₱{cartVat.toFixed(2)}</span>
-            </div>
-            <div className="total-row grand-total">
-              <span>Total</span>
-              <span>₱{cartTotal.toFixed(2)}</span>
-            </div>
+            <button className="btn-charge" disabled={cartItems.length === 0} onClick={processCheckout}>
+              <span className="material-symbols-outlined">payments</span> CHARGE
+            </button>
           </div>
-          <button className="primary checkout-btn" disabled={cartItems.length === 0} onClick={processCheckout}>
-             Charge ₱{cartTotal.toFixed(2)}
-          </button>
-        </section>
+        </aside>
+
       </main>
 
-      {/* Sync Queue Monitor Strip */}
-      <footer className="glass-panel sync-footer">
-        <div className="sync-status">
-            <span>Offline Queue: {transactions.filter(t=>!t.synced).length}</span>
-            <button onClick={syncAll} disabled={syncStatus === 'SYNCING' || transactions.filter(t=>!t.synced).length === 0}>
-              {syncStatus === 'SYNCING' ? 'Syncing...' : 'Sync to Cloud'}
-            </button>
-            {syncStatus === 'SUCCESS' && <span className="text-success ml-2">✓ Success</span>}
-            {syncStatus === 'ERROR' && <span className="text-error ml-2">⚠ Failed</span>}
+      {/* Footer Status Bar */}
+      <footer className="status-footer">
+        <div className="status-indicators">
+          <div className="status-item">
+            <div className={`status-dot ${transactions.filter(t=>!t.synced).length > 0 ? 'dot-pulse' : 'dot-stable'}`}></div>
+            <span>Offline Queue: <span className="value">{transactions.filter(t=>!t.synced).length}</span></span>
+          </div>
+          <div className="status-item">
+            <div className="status-dot dot-stable"></div>
+            <span>System State: <span className="value" style={{color: 'var(--success)'}}>Ready</span></span>
+          </div>
         </div>
+        
+        <button 
+          className="btn-sync" 
+          onClick={syncAll} 
+          disabled={syncStatus === 'SYNCING' || transactions.filter(t=>!t.synced).length === 0}
+        >
+          <span className="material-symbols-outlined">cloud_sync</span>
+          {syncStatus === 'SYNCING' ? 'SYNCING...' : 'SYNC TO CLOUD'}
+          {syncStatus === 'SUCCESS' && <span style={{color: 'var(--success)', marginLeft: '8px'}}>✓</span>}
+        </button>
       </footer>
 
+      {/* Checkout Modal Overlay */}
       {showCheckout && receipt && (
         <div className="modal-overlay">
           <div className="modal-content receipt-modal">
             <h2>Payment Successful</h2>
-            <div className="receipt-preview mono">
+            <div className="receipt-preview">
               <pre>{receipt.content}</pre>
             </div>
-            <button className="primary" onClick={() => setShowCheckout(false)}>
-              Start Next Order
+            <button className="btn-primary" onClick={() => setShowCheckout(false)}>
+              START NEXT ORDER
             </button>
           </div>
         </div>
       )}
+
     </div>
   )
 }
