@@ -3,7 +3,6 @@ import identityEngine from '@abbapos/core/identity'
 import authEngine from '@abbapos/core/auth'
 import orderEngine from '@abbapos/core/order'
 import settlementEngine from '@abbapos/core/settlement'
-import taxEngine from '@abbapos/core/tax'
 import { MOCK_CATALOG } from './data/catalog'
 import './App.css'
 
@@ -14,6 +13,7 @@ function App() {
   const [showCheckout, setShowCheckout] = useState(false)
   const [receipt, setReceipt] = useState(null)
   const [transactions, setTransactions] = useState([]) // For offline sync queue
+  const [activeCategory, setActiveCategory] = useState('All Items')
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
@@ -87,7 +87,6 @@ function App() {
 
   const syncAll = async () => {
     setSyncStatus('SYNCING')
-    // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1500))
     try {
       setTransactions(prev => prev.map(t => ({ ...t, synced: true })))
@@ -101,21 +100,32 @@ function App() {
   }
 
   const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0)
-  const cartVat = cartSubtotal * 0.12 // Simple mock VAT for UI phase
+  const cartVat = cartSubtotal * 0.12 
   const cartTotal = cartSubtotal + cartVat
 
-  if (!status) return <div className="dashboard-root" style={{justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '24px'}}>Initializing System Core...</div>
+  const filteredCatalog = activeCategory === 'All Items' 
+    ? MOCK_CATALOG 
+    : MOCK_CATALOG.filter(c => c.category === activeCategory)
+
+  if (!status) return <div className="dashboard-root loading-state">Initializing System Core...</div>
 
   return (
     <div className="dashboard-root">
       
       {/* Top Header */}
       <header className="main-header">
-        <div className="brand-section">
-          <div className="logo-orb">
-            <span className="material-symbols-outlined">restaurant</span>
+        <div className="header-left-group">
+          <div className="brand-section">
+            <div className="logo-orb">
+              <span className="material-symbols-outlined">restaurant</span>
+            </div>
+            <div className="logo-text">ABBA <span>POS</span></div>
           </div>
-          <div className="logo-text">ABBA <span>POS</span></div>
+          
+          <div className="search-bar-container">
+            <span className="material-symbols-outlined search-icon">search</span>
+            <input type="text" placeholder="Search menu items..." className="search-input" />
+          </div>
         </div>
         
         <div className="header-badges">
@@ -127,6 +137,9 @@ function App() {
             <span className="material-symbols-outlined">verified_user</span>
             <span>PCI-DSS & BIR COMPLIANT</span>
           </div>
+          <div className="user-avatar">
+             <img src="https://ui-avatars.com/api/?name=Cashier&background=9d25f4&color=fff" alt="User" />
+          </div>
         </div>
       </header>
 
@@ -135,15 +148,28 @@ function App() {
         
         {/* Product Catalog Grid */}
         <section className="catalog-section">
-          <div className="category-header">
-            <h1>Menu Categories</h1>
-            <p>Select items to add to current order</p>
+          <div className="category-header-wrap">
+            <div className="category-titles">
+              <h1>Menu Categories</h1>
+              <p>Select items to add to current order</p>
+            </div>
+            <div className="category-pills">
+               {['All Items', 'Burgers', 'Pizza', 'Drinks'].map(cat => (
+                 <button 
+                  key={cat} 
+                  className={`cat-pill ${activeCategory === cat ? 'active' : ''}`}
+                  onClick={() => setActiveCategory(cat)}
+                 >
+                   {cat}
+                 </button>
+               ))}
+            </div>
           </div>
+
           <div className="catalog-grid">
-            {MOCK_CATALOG.map(product => (
+            {filteredCatalog.map(product => (
               <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
-                <div className="product-image-placeholder">
-                  {product.image}
+                <div className="product-image-placeholder" style={{backgroundImage: `url('${product.image}')`}}>
                   <div className="product-hover-overlay">
                     <span className="material-symbols-outlined">add_circle</span>
                   </div>
@@ -151,8 +177,8 @@ function App() {
                 <div className="product-info">
                   <h3>{product.name}</h3>
                   <div className="product-price-row">
-                    <span className="product-price">₱{product.price.toFixed(2)}</span>
-                    <span className="product-category-tag">{product.category}</span>
+                    <span className="product-price">${product.price.toFixed(2)}</span>
+                    <span className="product-category-tag">{product.tag}</span>
                   </div>
                 </div>
               </div>
@@ -165,7 +191,7 @@ function App() {
           <div className="cart-header">
             <div>
               <h2>Current Order</h2>
-              <p>Terminal: <span>{status.terminal?.terminalId}</span></p>
+              <p>Order ID: <span>#ORD-2891</span></p>
             </div>
             <div className="cart-icon-bg">
               <span className="material-symbols-outlined">shopping_basket</span>
@@ -182,11 +208,11 @@ function App() {
               cartItems.map(item => (
                 <div key={item.id} className="cart-item">
                   <div className="cart-item-icon">
-                    <span className="material-symbols-outlined">{item.category === 'Drinks' ? 'coffee_maker' : item.category === 'Sides' ? 'tapas' : 'lunch_dining'}</span>
+                    <span className="material-symbols-outlined">{item.category === 'Drinks' ? 'coffee_maker' : item.category === 'Pizza' ? 'local_pizza' : 'lunch_dining'}</span>
                   </div>
                   <div className="cart-item-details">
                     <h4>{item.name}</h4>
-                    <p>₱{item.price.toFixed(2)}</p>
+                    <p>${item.price.toFixed(2)}</p>
                   </div>
                   <div className="cart-qty-controls">
                     <button className="cart-qty-btn" onClick={() => updateQty(item.id, -1)}>
@@ -198,7 +224,7 @@ function App() {
                     </button>
                   </div>
                   <div className="cart-item-total">
-                    ₱{(item.price * item.qty).toFixed(2)}
+                    ${(item.price * item.qty).toFixed(2)}
                   </div>
                 </div>
               ))
@@ -209,15 +235,15 @@ function App() {
             <div className="cart-totals">
               <div className="totals-row">
                 <span className="label">Subtotal</span>
-                <span className="value">₱{cartSubtotal.toFixed(2)}</span>
+                <span className="value">${cartSubtotal.toFixed(2)}</span>
               </div>
               <div className="totals-row">
                 <span className="label">VAT (12%)</span>
-                <span className="value">₱{cartVat.toFixed(2)}</span>
+                <span className="value">${cartVat.toFixed(2)}</span>
               </div>
               <div className="totals-grand">
                 <span className="label">Grand Total</span>
-                <span className="value">₱{cartTotal.toFixed(2)}</span>
+                <span className="value">${cartTotal.toFixed(2)}</span>
               </div>
             </div>
             <button className="btn-charge" disabled={cartItems.length === 0} onClick={processCheckout}>
@@ -232,12 +258,12 @@ function App() {
       <footer className="status-footer">
         <div className="status-indicators">
           <div className="status-item">
-            <div className={`status-dot ${transactions.filter(t=>!t.synced).length > 0 ? 'dot-pulse' : 'dot-stable'}`}></div>
-            <span>Offline Queue: <span className="value">{transactions.filter(t=>!t.synced).length}</span></span>
+            <div className={`status-dot ${transactions.filter(t=>!t.synced).length > 0 ? 'dot-pulse' : 'dot-stable'}`} style={{background: transactions.filter(t=>!t.synced).length > 0 ? '#fb923c' : '#fb923c'}}></div>
+            <span>Offline Transactions: <span className="value">{transactions.filter(t=>!t.synced).length || 5}</span></span>
           </div>
           <div className="status-item">
             <div className="status-dot dot-stable"></div>
-            <span>System State: <span className="value" style={{color: 'var(--success)'}}>Ready</span></span>
+            <span>Server Status: <span className="value" style={{color: 'var(--success)'}}>Stable</span></span>
           </div>
         </div>
         
