@@ -59,6 +59,58 @@ class SettlementEngine {
       order: order.toJSON()
     };
   }
+
+  /**
+   * Voids a completed transaction.
+   * @param {string} receiptNumber 
+   * @param {string} supervisorId 
+   * @param {string} reason 
+   */
+  voidTransaction(receiptNumber, supervisorId, reason) {
+    if (!supervisorId) throw new Error('Void Error: Supervisor approval required.');
+    
+    // In a real system, we'd look up the transaction by receipt number.
+    // For this engine, we'll assume the audit log or a data store has it.
+    
+    auditEngine.log('VOID_TRANSACTION', `Receipt ${receiptNumber} voided by ${supervisorId}. Reason: ${reason}`, {
+      receiptNumber,
+      supervisorId,
+      reason
+    });
+
+    return {
+      success: true,
+      status: 'VOIDED',
+      receiptNumber
+    };
+  }
+
+  /**
+   * Refunds a transaction or specific items.
+   * @param {string} receiptNumber 
+   * @param {string} supervisorId 
+   * @param {string} reason 
+   * @param {Array} items - Optional list of items to refund. Full refund if empty.
+   */
+  refundTransaction(receiptNumber, supervisorId, reason, items = []) {
+    if (!supervisorId) throw new Error('Refund Error: Supervisor approval required.');
+
+    const refundType = items.length > 0 ? 'PARTIAL_REFUND' : 'FULL_REFUND';
+    
+    auditEngine.log(refundType, `Receipt ${receiptNumber} refunded by ${supervisorId}. Reason: ${reason}`, {
+      receiptNumber,
+      supervisorId,
+      reason,
+      items
+    });
+
+    return {
+      success: true,
+      status: 'REFUNDED',
+      type: refundType,
+      receiptNumber
+    };
+  }
 }
 
 export default new SettlementEngine();

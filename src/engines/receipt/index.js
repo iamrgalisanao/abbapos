@@ -52,8 +52,15 @@ class ReceiptEngine {
       auditEngine.log('REPRINT', `Reprinted receipt ${receiptNumber}`, { receiptNumber });
     }
 
+    const { status: receiptStatus = 'NORMAL' } = options;
+    let title = isReprint ? 'OFFICIAL RECEIPT (REPRINT)' : 'OFFICIAL RECEIPT';
+    
+    if (receiptStatus === 'VOID') title = 'VOID RECEIPT';
+    if (receiptStatus === 'REFUND') title = 'REFUND RECEIPT';
+
     return {
-      title: isReprint ? 'OFFICIAL RECEIPT (REPRINT)' : 'OFFICIAL RECEIPT',
+      title,
+      status: receiptStatus,
       receiptNumber: receiptNumber,
       timestamp: new Date().toISOString(),
       store: status.store,
@@ -78,7 +85,12 @@ class ReceiptEngine {
    * @returns {string}
    */
   renderText(receipt) {
-    let output = `\n${receipt.title.padStart(25)}\n`;
+    let titleLine = receipt.title;
+    if (receipt.status !== 'NORMAL' && !titleLine.includes(receipt.status)) {
+      titleLine = `*** ${receipt.status} ***\n${titleLine}`;
+    }
+
+    let output = `\n${titleLine.padStart(25)}\n`;
     output += `---------------------------\n`;
     output += `${receipt.store.storeName}\n`;
     output += `${receipt.store.address}\n`;

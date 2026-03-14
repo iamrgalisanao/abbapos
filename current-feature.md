@@ -1,22 +1,22 @@
-# Current Feature: Payment & Settlement Integration
+# Current Feature: Void & Refund Policy
 
 **Work Type:** Compliance Work
-**Epic:** Core F&B Sales
+**Epic:** Compliance Core
 **Status:** In Progress
 **Compliance impact:** Critical
 **Receipt impact:** High
 **Tax impact:** High
 **Audit required:** Yes
 **Offline-sensitive:** Yes
-**Manager approval required:** No
+**Manager approval required:** Yes
 
 ## Business Objective
-Finalize the sales flow by integrating the Order Engine with the Tax and Receipt engines. This ensures that every paid order has accurate tax calculations and a sequentially numbered BIR-compliant receipt.
+Implement the BIR-compliant Void and Refund policy. This ensures that transactions can be cancelled or returned following strict audit trails and supervisor approvals, with proper counter-receipts or negative adjustments.
 
 ## Acceptance Criteria
-- [ ] SettlementEngine implemented to coordinate payment.
-- [ ] Accurate tax calculation (VAT/SC) for the finalized order.
-- [ ] Official Receipt generation with sequential numbering.
-- [ ] Order status updated to PAID upon successful settlement.
-- [ ] Audit log entry for completed transactions.
-- [ ] Payment summary included in the receipt.
+- [ ] Implement `voidTransaction` in `SettlementEngine`.
+- [ ] Implement `refundOrder` in `SettlementEngine`.
+- [ ] Require manager/supervisor authentication for void/refund actions.
+- [ ] Generate "Void" or "Return" receipts with reference to the original sequence.
+- [ ] Log every void/refund attempt (success or failure) in the `ComplianceAuditEngine`.
+- [ ] Ensure sequential numbering is maintained or properly accounted for in BIR reports.

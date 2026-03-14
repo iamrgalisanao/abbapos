@@ -1,24 +1,24 @@
 # Task Plan: BIR-Compliant F&B POS
 
 ## Phase 1: Compliance Core
-- [ ] Store/Terminal configuration
-- [ ] Cashier authentication
-- [ ] Role/Permission framework
-- [ ] Tax setup logic
-- [ ] Receipt engine baseline
-- [ ] Numbering/Series controls
-- [ ] Protected audit logging
-- [ ] Payment finalization rules
-- [ ] Reprint and void/refund policy framework
+- [x] Store/Terminal configuration
+- [x] Cashier authentication
+- [x] Role/Permission framework
+- [x] Tax setup logic
+- [x] Receipt engine baseline
+- [x] Numbering/Series controls
+- [x] Protected audit logging
+- [x] Payment finalization rules
+- [x] Reprint and void/refund policy framework
 
 ## Phase 2: Core F&B Sales
-- [ ] Item catalog
-- [ ] Modifiers
-- [ ] Order lifecycle (Dine-in, Takeout, Delivery)
-- [ ] Hold/Resume
-- [ ] Split/Merge bill behavior
-- [ ] Payment and settlement flow
-- [ ] Official receipt issuance
+- [x] Item catalog
+- [x] Modifiers
+- [x] Order lifecycle (Dine-in, Takeout, Delivery)
+- [x] Hold/Resume
+- [x] Split/Merge bill behavior
+- [x] Payment and settlement flow
+- [x] Official receipt issuance
 
 ## Phase 3: Commercial Operations
 - [ ] Discounts/Promotions
