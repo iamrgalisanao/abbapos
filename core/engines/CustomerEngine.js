@@ -1,7 +1,6 @@
 import Customer from '../models/Customer.js';
 import LoyaltyAccount from '../models/LoyaltyAccount.js';
 import auditEngine from './audit/index.js';
-import persistenceManager from '../utils/persistenceManager.js';
 class CustomerEngine {
   constructor() {
     this.customers = new Map(); // phone -> Customer
@@ -119,5 +118,4 @@ class CustomerEngine {
 }
 
 const instance = new CustomerEngine();
-persistenceManager.registerEngine('customer', instance);
 export default instance;
