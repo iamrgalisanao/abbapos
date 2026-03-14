@@ -23,4 +23,5 @@ Implement a high-speed, modern, glassmorphic React interface for the front-of-ho
 1. **Main POS Dashboard**: Product Grid, Search, Offline Sync heartbeat.
 2. **Checkout Payment Modal**: Secure settlement UI (Cash, Card, QR).
 3. **Item Customization Dialog**: Add-ons and modifiers selection.
-4. **Operations Menu Overlay**: Manager PIN-protected flow for Void, Hold, Resume, and Apply Discount actions via a dark-mode glassmorphism interface.
+4. **Operations Menu Overlay**: Manager PIN-protected flow for Void, Hold, Resume, and Apply Discount actions.
+5. **Digital Receipts Modal**: BIR-compliant thermal receipt visualization with dynamic total rendering and email/print actions.

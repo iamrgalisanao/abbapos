@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added the **Checkout Payment Modal**: Includes a custom numeric keypad, exact amount toggle, and mapped payment methods (CASH, CARD, QR, LOYALTY) bound seamlessly to the core `SettlementEngine`.
     - Added the **Item Customization Dialog**: Support for required modifiers (e.g., meat temperatures) and optional add-ons with dynamic pricing calculations directly within the cart.
     - Added the **Operations Menu Overlay**: A premium glassmorphic modal enforcing Manager PIN authorization for Voiding items, holding/resuming orders, and directly calculating cart discounts (Percent, Amount, SC/PWD logic).
+    - Added the **Digital Receipts Modal**: Rendered a BIR-compliant digital reproduction of the generated physical receipt immediately post-transaction.
 - Added **Customer Engagement (Loyalty & Profiles)**: Customer registry, point-based loyalty, and receipt integration.
 - Added **Persistence Layer**: Durable atomic file-based state preservation across all core engines.
 - **Supplier & Purchase Workflows**: Integrated vendor management and formal Purchase Order (PO) tracking with automated inventory reconciliation upon receipt.
