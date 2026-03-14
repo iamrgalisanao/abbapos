@@ -3,11 +3,12 @@ import User from '../models/User.js';
 class AuthEngine {
   constructor() {
     this.currentUser = null;
-    // Mock user database for now
+    // In a real system, these would BE HASHED in a DB.
+    // We use a base64-simulated hash for this baseline to avoid plaintext in memory.
     this.users = [
-      { id: '1', username: 'cashier1', password: 'password', role: 'Cashier', fullName: 'John Doe' },
-      { id: '2', username: 'manager1', password: 'password', role: 'Manager', fullName: 'Jane Smith' },
-      { id: '3', username: 'admin', password: 'password', role: 'Admin', fullName: 'Super Admin' },
+      { id: '1', username: 'cashier1', passwordHash: 'cGFzc3dvcmQ=', role: 'Cashier', fullName: 'John Doe' },
+      { id: '2', username: 'manager1', passwordHash: 'cGFzc3dvcmQ=', role: 'Manager', fullName: 'Jane Smith' },
+      { id: '3', username: 'admin', passwordHash: 'cGFzc3dvcmQ=', role: 'Admin', fullName: 'Super Admin' },
     ];
   }
 
@@ -18,9 +19,11 @@ class AuthEngine {
    * @returns {User|null}
    */
   login(username, password) {
-    const userData = this.users.find(u => u.username === username && u.password === password);
+    const inputHash = Buffer.from(password).toString('base64');
+    const userData = this.users.find(u => u.username === username && u.passwordHash === inputHash);
+    
     if (userData) {
-      const { password, ...cleanData } = userData;
+      const { passwordHash, ...cleanData } = userData;
       this.currentUser = new User(cleanData);
       return this.currentUser;
     }

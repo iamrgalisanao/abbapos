@@ -4,6 +4,8 @@ import taxEngine from './tax/index.js';
 import receiptEngine from './receipt/index.js';
 import inventoryEngine from './inventory/index.js';
 import auditEngine from './audit/index.js';
+import authEngine from './auth.js';
+import rbacEngine from './rbac.js';
 
 class SettlementEngine {
   /**
@@ -62,7 +64,11 @@ class SettlementEngine {
     // 6. Render Receipt Content
     const receiptContent = receiptEngine.renderText(receiptObj);
 
-    // 7. Build Final Receipt Object
+    // 7. Validate Payment & Build Final Receipt Object
+    if (paymentData.amountPaid < taxBreakdown.total) {
+      throw new Error(`Settlement Error: Insufficient payment. Required: ${taxBreakdown.total.toFixed(2)}, Provided: ${paymentData.amountPaid.toFixed(2)}`);
+    }
+
     const finalReceipt = {
       ...receiptObj,
       content: receiptContent,
@@ -100,6 +106,12 @@ class SettlementEngine {
   voidTransaction(receiptNumber, supervisorId, reason) {
     if (!supervisorId) throw new Error('Void Error: Supervisor approval required.');
     
+    // Security Fix: Verify supervisorId exists and has VOID_SALES permission
+    const supervisor = authEngine.users.find(u => u.id === supervisorId);
+    if (!supervisor || !rbacEngine.can(supervisor.role, 'VOID_SALES')) {
+      throw new Error('Void Error: Unauthorized. Valid supervisor credentials required.');
+    }
+    
     // In a real system, we'd look up the transaction by receipt number.
     // For this engine, we'll assume the audit log or a data store has it.
     
@@ -125,6 +137,12 @@ class SettlementEngine {
    */
   refundTransaction(receiptNumber, supervisorId, reason, items = []) {
     if (!supervisorId) throw new Error('Refund Error: Supervisor approval required.');
+
+    // Security Fix: Verify supervisorId exists and has REFUND permission
+    const supervisor = authEngine.users.find(u => u.id === supervisorId);
+    if (!supervisor || !rbacEngine.can(supervisor.role, 'REFUND')) {
+      throw new Error('Refund Error: Unauthorized. Valid manager/admin credentials required.');
+    }
 
     const refundType = items.length > 0 ? 'PARTIAL_REFUND' : 'FULL_REFUND';
     

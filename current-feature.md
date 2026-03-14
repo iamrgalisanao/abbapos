@@ -1,21 +1,22 @@
-# Current Feature: Low-Stock Alerts
+# Current Feature: Security & Hygiene Sweep (Periodic)
 
-**Work Type:** Feature Work
+**Work Type:** Operational Work / Compliance
 **Epic:** Commercial Operations
 **Status:** In Progress
-**Compliance impact:** Low
+**Compliance impact:** High
 **Receipt impact:** None
 **Tax impact:** None
 **Audit required:** Yes
-**Offline-sensitive:** Yes
+**Offline-sensitive:** No
 **Manager approval required:** No
 
 ## Business Objective
-Ensure that store personnel are proactively notified when inventory levels for critical items fall below a predefined threshold. This prevents stock-outs and allows for timely reordering.
+As per the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guardrails.md), we must perform periodic sweeps to ensure the codebase remains secure, maintainable, and free from silent structural decay. This first sweep focuses on fixing critical vulnerabilities in the core engines.
 
 ## Acceptance Criteria
-- [ ] Incorporate threshold checks within the `InventoryEngine` whenever stock changes.
-- [ ] Create an `InventoryAlert` model to track triggered alerts.
-- [ ] Implement a notification mechanism (event emission or specific audit log category).
-- [ ] Ensure alerts can be "acknowledged" or cleared.
-- [ ] Log all alert triggers to the `ComplianceAuditEngine`.
+- [x] Perform comprehensive audit of core engines.
+- [x] Document all findings in `findings.md`.
+- [ ] Eliminate hardcoded plaintext passwords in `auth.js`.
+- [ ] Enforce proper RBAC checks in `settlement.js` (void/refund).
+- [ ] Validate payment totals in `settlement.js` to prevent "change" manipulation.
+- [ ] Ensure all fixes are verified with a new verification script `tests/verify_security_fixes.js`.
