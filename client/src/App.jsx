@@ -10,6 +10,9 @@ function App() {
   const [status, setStatus] = useState(null)
   const [cartItems, setCartItems] = useState([])
   const [syncStatus, setSyncStatus] = useState('IDLE') // IDLE, SYNCING, SUCCESS, ERROR
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [receipt, setReceipt] = useState(null)
+  const [transactions, setTransactions] = useState([]) // For offline sync queue
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('CASH')
@@ -33,7 +36,7 @@ function App() {
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
-    try { authEngine.login('cashier1', 'password') } catch(e) {}
+    try { authEngine.login('cashier1', 'password') } catch { /* ignore */ }
   }, [])
 
   const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0)
