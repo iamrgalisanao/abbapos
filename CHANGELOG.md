@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Supplier & Purchase Workflows**: Integrated vendor management and formal Purchase Order (PO) tracking with automated inventory reconciliation upon receipt.
 - **Reporting Dashboards (X-Read/Z-Read)**: BIR-compliant daily sales reporting with sequential Z-counters, grand total accumulators, and tax/discount breakdown snapshots.
 - **Security & Hygiene Cleanup**:
     - **Password Hardening**: Removed plaintext credentials and implemented base64-simulated hash verification.
