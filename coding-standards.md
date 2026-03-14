@@ -1,6 +1,6 @@
 # Coding Standards
 
-Follow the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guardrails.md) for every change.
+Follow the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guardrails.md) and the [Code Review Standard and Acceptance Policy](code-review-standard.md) for every change.
 
 ## Naming Conventions
 - Clear and descriptive names for variables and functions.

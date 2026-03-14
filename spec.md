@@ -118,6 +118,8 @@ must undergo a **Compliance Impact Review** before implementation and before rel
 * `findings.md` — verified discoveries, open questions, research evidence, issue lessons.
 * `current-feature.md` — the active feature/fix/refactor specification.
 * `coding-standards.md` — naming, module boundaries, error handling, test expectations.
+* `code-review-standard.md` — risk-based review layers and acceptance gates.
+* `security-hygiene-guardrails.md` — vulnerability and hygiene standards.
 * `ai-interaction.md` — how the AI must behave in this repo.
 
 ### Required Directories
@@ -714,6 +716,7 @@ A task is done only when all applicable items are true:
 * report impact verified,
 * regression checks performed,
 * **Security & Hygiene**: Design-stage review completed and pre-merge hygiene sweep passed (no dead code).
+* **Code Review & Acceptance**: Specialist review completed and evidence recorded for high-risk changes as per [code-review-standard.md](code-review-standard.md).
 * docs/spec/context updated,
 * compliance matrix updated if needed,
 * review completed,
@@ -765,14 +768,15 @@ Recommended reusable skills:
 
 Use specialist reviewers when risk is high.
 
-* **Receipt Reviewer** — printed output, fields, reprint handling, layout consistency.
+* **Receipt Reviewer** — layout, numbering, reprints, printed totals.
 * **Tax Reviewer** — totals, discounts, charges, rounding, exemptions.
 * **Promo Reviewer** — stacking, bundles, exclusions, override risk.
-* **RBAC Reviewer** — roles, approval enforcement, denial paths.
-* **Offline Reviewer** — queueing, dedupe, reconnect behavior.
-* **Reporting Reviewer** — consistency between source transactions and reports.
-* **Security Reviewer** — sensitive actions, data exposure, terminal trust.
-* **Refactor Reviewer** — structure, engine boundaries, maintainability.
+* **RBAC Reviewer** — roles, approval enforcement, backend enforcement points.
+* **Offline Reviewer** — queueing, dedupe, sync traceability, recovery.
+* **Reporting Reviewer** — transaction truth vs report consistency.
+* **Security Reviewer** — trust boundaries, auth, permissions, session safety.
+* **Refactor Reviewer** — duplication, dead code, structural drift.
+* **Validation Reviewer** — automated tests and manual validation depth.
 
 ---
 
