@@ -1,18 +1,14 @@
 {
-  "name": "abbapos",
+  "name": "abbapos-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "type": "module",
-  "description": "BIR-Compliant F&B POS",
+  "workspaces": [
+    "client",
+    "core"
+  ],
   "scripts": {
-    "verify:identity": "node verify_identity.js",
-    "verify:auth": "node verify_auth.js",
-    "verify:tax": "node verify_tax.js",
-    "verify:sales": "node verify_sales_flow.js",
-    "verify:audit": "node verify_audit.js",
-    "verify:catalog": "node verify_catalog.js",
-    "verify:orders": "node verify_orders.js",
-    "verify:split": "node verify_split_merge.js",
-    "verify:settle": "node verify_settlement.js"
-  },
-  "dependencies": {}
+    "core:test": "npm test --workspace=core",
+    "client:dev": "npm run dev --workspace=client",
+    "server:dev": "cd server && php artisan serve"
+  }
 }

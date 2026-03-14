@@ -1,0 +1,19 @@
+{
+  "name": "@abbapos/core",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "BIR-Compliant F&B POS Core Logic",
+  "scripts": {
+    "test:identity": "node tests/verify_identity.js",
+    "test:auth": "node tests/verify_auth.js",
+    "test:tax": "node tests/verify_tax.js",
+    "test:sales": "node tests/verify_sales_flow.js",
+    "test:audit": "node tests/verify_audit.js",
+    "test:catalog": "node tests/verify_catalog.js",
+    "test:orders": "node tests/verify_orders.js",
+    "test:split": "node tests/verify_split_merge.js",
+    "test:settle": "node tests/verify_settlement.js",
+    "test": "npm run test:identity && npm run test:tax && npm run test:sales"
+  },
+  "dependencies": {}
+}
