@@ -22,6 +22,16 @@ class PricingEngine {
       }
     });
 
+    if (totalDiscount > lineSubtotal) {
+      const displayId = item.itemId || item.id || 'unknown';
+      auditEngine.log('PRICE_WARNING', `Discount (${totalDiscount.toFixed(2)}) exceeded line subtotal (${lineSubtotal.toFixed(2)}) for item ${displayId}. Clamped to subtotal.`, {
+        itemId: displayId,
+        subtotal: lineSubtotal,
+        attemptedDiscount: totalDiscount
+      });
+      totalDiscount = lineSubtotal;
+    }
+
     return {
       netPrice: Math.max(0, lineSubtotal - totalDiscount),
       totalDiscount

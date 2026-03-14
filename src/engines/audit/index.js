@@ -42,6 +42,26 @@ class ComplianceAuditEngine {
   getLogs() {
     return this.logs;
   }
+
+  /**
+   * Exports logs for persistence.
+   * @returns {string} JSON string of logs.
+   */
+  exportLogs() {
+    return JSON.stringify(this.logs);
+  }
+
+  /**
+   * Imports logs from a persistent store.
+   * @param {string} logsData - JSON string of logs.
+   */
+  importLogs(logsData) {
+    try {
+      this.logs = JSON.parse(logsData);
+    } catch (err) {
+      console.error('Audit Engine Error: Failed to import logs.', err);
+    }
+  }
 }
 
 export default new ComplianceAuditEngine();

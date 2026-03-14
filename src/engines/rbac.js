@@ -10,6 +10,16 @@ class RBACEngine {
   }
 
   /**
+   * Configures the permission matrix.
+   * @param {Object} matrix 
+   */
+  configure(matrix) {
+    if (matrix) {
+      this.permissions = { ...this.permissions, ...matrix };
+    }
+  }
+
+  /**
    * Checks if a role has a specific permission.
    * @param {string} role
    * @param {string} action

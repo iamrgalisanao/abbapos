@@ -6,6 +6,16 @@ class TaxEngine {
   }
 
   /**
+   * Configures tax rates and precision.
+   * @param {Object} config 
+   */
+  configure(config = {}) {
+    if (config.vatRate !== undefined) this.vatRate = config.vatRate;
+    if (config.serviceChargeRate !== undefined) this.serviceChargeRate = config.serviceChargeRate;
+    if (config.roundingPrecision !== undefined) this.roundingPrecision = config.roundingPrecision;
+  }
+
+  /**
    * Rounds a number to the defined precision.
    * @param {number} value
    * @returns {number}

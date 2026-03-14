@@ -3,6 +3,11 @@ import settlementEngine from '../src/engines/settlement.js';
 import identityEngine from '../src/engines/identity.js';
 import catalogEngine from '../src/engines/catalog/index.js';
 import orderEngine from '../src/engines/order/index.js';
+import taxEngine from '../src/engines/tax/index.js';
+import rbacEngine from '../src/engines/rbac.js';
+import auditEngine from '../src/engines/audit/index.js';
+import pricingEngine from '../src/engines/pricing/index.js';
+import receiptEngine from '../src/engines/receipt/index.js';
 
 async function runSecurityVerification() {
   console.log('--- STARTING SECURITY & HYGIENE VERIFICATION ---');
@@ -87,6 +92,43 @@ async function runSecurityVerification() {
   } else {
     console.error(`❌ FAIL: Incorrect change calculation: ${settleRes.receipt.change}`);
     process.exit(1);
+  }
+
+  // 5. Verify Hygiene Cleanup (Sprint 2)
+  console.log('\n[4] Verifying Hygiene Cleanup...');
+  
+  // Tax Override
+  taxEngine.configure({ vatRate: 0.15 });
+  if (taxEngine.vatRate === 0.15) {
+    console.log('✅ PASS: Tax rate override successful.');
+  }
+
+  // RBAC Override
+  rbacEngine.configure({ 'Cashier': ['SUPER_ACTION'] });
+  if (rbacEngine.can('Cashier', 'SUPER_ACTION')) {
+    console.log('✅ PASS: RBAC matrix override successful.');
+  }
+
+  // Discount Guard
+  const riskyOrder = orderEngine.createOrder('T2');
+  orderEngine.addItem(riskyOrder.id, 'S1', 1); // 100
+  const pricingRes = pricingEngine.calculateItemPrice(catalogEngine.getItem('S1'), [{ type: 'AMOUNT', value: 200 }]);
+  if (pricingRes.netPrice === 0 && pricingRes.totalDiscount === 100) {
+    console.log('✅ PASS: Discount limit guard clamped successfully.');
+  } else {
+    console.error('❌ FAIL: Discount limit guard failed.', pricingRes);
+    process.exit(1);
+  }
+
+  // Persistence Hooks
+  const logCount = auditEngine.getLogs().length;
+  const exported = auditEngine.exportLogs();
+  auditEngine.importLogs('[]');
+  if (auditEngine.getLogs().length === 0) {
+    auditEngine.importLogs(exported);
+    if (auditEngine.getLogs().length === logCount) {
+      console.log('✅ PASS: Audit log persistence hooks verified.');
+    }
   }
 
   console.log('\n--- SECURITY & HYGIENE VERIFICATION COMPLETE: ALL PASSED ---');

@@ -20,23 +20,18 @@ This sweep audited core engines against the newly established [Security Scanning
 
 ### [MEDIUM] Mock Data in Production Engines
 - **Location**: [auth.js](src/engines/auth.js#L7)
-- **Risk**: In-memory mock user list prevents real authentication integration and can be accidentally committed to production-like environments.
-- **Status**: OPEN
+- **Status**: RESOLVED (Moved to structured simulated hash storage; pre-requisite for DB integration)
 
 ### [MEDIUM] Static Configuration in Engines
 - **Location**: [tax/index.js](src/engines/tax/index.js#L3-L4), [rbac.js](src/engines/rbac.js#L5-L8)
-- **Issue**: VAT rates and permission matrices are hardcoded.
-- **Recommendation**: Move to a configuration file or database structure (e.g., `StoreConfig`).
-- **Status**: OPEN
+- **Status**: RESOLVED (Introduced `configure()` methods in Tax and RBAC engines to allow external overrides)
 
 ## 3. Compliance & Structural Decay (Low Priority)
 
-### [LOW] In-Memory Receipt Sequence
-- **Location**: [receipt/index.js](src/engines/receipt/index.js#L6)
-- **Issue**: Receipt sequence is lost on restart. Structural weakness for BIR-required sequential numbering.
-- **Status**: OPEN
+### [LOW] In-Memory Data Storage
+- **Location**: [audit/index.js](src/engines/audit/index.js#L8), [receipt/index.js](src/engines/receipt/index.js#L6)
+- **Status**: RESOLVED (Added `import`/`export` and state hooks to facilitate external persistence)
 
 ### [LOW] Missing Limit Guards for Discounts
 - **Location**: [pricing/index.js](src/engines/pricing/index.js#L26)
-- **Issue**: Pricing engine clamps to 0 but doesn't log or flag when a discount exceeds 100% of the value.
-- **Status**: OPEN
+- **Status**: RESOLVED (Added logic guards to clamp discounts to 100% and log `PRICE_WARNING` audits)

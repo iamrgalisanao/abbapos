@@ -17,6 +17,14 @@ class ReceiptEngine {
   }
 
   /**
+   * Returns current sequence for persistence.
+   * @returns {number}
+   */
+  getCurrentSequence() {
+    return this.currentSequence;
+  }
+
+  /**
    * Generates the next sequential receipt number.
    * Format: OR-<TerminalID>-<PaddedSequence>
    * @returns {string}
