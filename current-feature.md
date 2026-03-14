@@ -1,24 +1,26 @@
-# Current Feature: Reporting Dashboards (X-Read/Z-Read)
+# Current Feature: Core POS Web Interface (React)
 
-**Work Type:** Feature Work / Compliance
-**Epic:** Commercial Operations
+**Work Type:** Frontend Development / Feature Work
+**Epic:** Phase 6 Modernization
 **Status:** In Progress
-**Compliance impact:** High
-**Receipt impact:** Yes
-**Tax impact:** Yes
-**Audit required:** Yes
+**Compliance impact:** Low (Handled by backend engines)
+**Receipt impact:** No (Handled by backend engines)
+**Tax impact:** No (Handled by backend engines)
+**Audit required:** Yes (UI actions map to audit events)
 **Offline-sensitive:** Yes
-**Manager approval required:** Yes (for Z-Read)
 
 ## Business Objective
-Implement legally required sales summary reporting (X-Read and Z-Read) to ensure BIR compliance and operational visibility.
+Implement a high-speed, modern, glassmorphic React interface for the front-of-house cashier terminal that bridges directly into the verified JS Core Engines.
 
 ## Acceptance Criteria
-- [ ] `ReportingEngine` tracks Gross, Net, VAT, Exempt, Zero-Rated, Discount, and Service Charge totals.
-- [ ] `ReportingEngine` maintains a persistent sequential Z-counter.
-- [ ] `ReportingEngine` maintains a Grand Total Accumulator (Running Total).
-- [ ] `generateXRead()` provides a non-resetting snapshot of the current period.
-- [ ] `generateZRead()` provides a finalized summary, increments the Z-counter, and resets daily accumulators.
-- [ ] reports include the starting and ending invoice (OR) numbers for the period.
-- [ ] All reporting actions are logged to the `ComplianceAuditEngine`.
-- [ ] Verification script `tests/verify_reporting.js` confirms total accuracy and sequence integrity.
+- [x] Implement Main POS Dashboard with Cart and Product Grid.
+- [x] Implement robust Checkout Payment Modal with custom numeric keypad.
+- [x] Implement Item Customization Dialog with required modifiers and optional add-ons.
+- [x] Implement Operations Overlay for Voiding and order holds.
+- [ ] Connect React UI to Local JS Settlement and Order Engines for end-to-end sales processing.
+
+## Implemented Components
+1. **Main POS Dashboard**: Product Grid, Search, Offline Sync heartbeat.
+2. **Checkout Payment Modal**: Secure settlement UI (Cash, Card, QR).
+3. **Item Customization Dialog**: Add-ons and modifiers selection.
+4. **Operations Menu Overlay**: Manager PIN-protected flow for Void, Hold, Resume, and Apply Discount actions via a dark-mode glassmorphism interface.
