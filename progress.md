@@ -8,8 +8,10 @@
 - [x] Supplier & Purchase Workflows
 
 ## Next Steps
-- Implement **Supplier & Purchase Workflows**.
-- Implement **Customer Profile & Loyalty Engine**.
+- Implement **Supplier & Purchase Workflows**.## Phase 4: Customer Engagement & Scale (50% Complete)
+- [x] Customer Profile & Loyalty Engine
+- [ ] Accounting Export (Quickbooks/Xero/SAP)
+- [ ] Web/Online Ordering Integration
 - Build **Accounting Export (CSV/JSON)** for external reconciliation.
 
 ## Blockers

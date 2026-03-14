@@ -83,7 +83,8 @@ class ReceiptEngine {
         birAccreditation: status.terminal.accreditationNumber,
         ptuNumber: status.terminal.ptuNumber,
         message: 'Thank you for dining with us!',
-      }
+      },
+      loyalty: options.loyalty || null
     };
   }
 
@@ -125,6 +126,14 @@ class ReceiptEngine {
     }
     output += `TOTAL: ${receipt.totals.total.toFixed(2).padStart(18)}\n`;
     output += `---------------------------\n`;
+    
+    if (receipt.loyalty) {
+      output += `LOYALTY POINTS\n`;
+      output += `Points Earned: ${String(receipt.loyalty.pointsEarned).padStart(12)}\n`;
+      output += `New Balance: ${String(receipt.loyalty.newBalance).padStart(14)}\n`;
+      output += `---------------------------\n`;
+    }
+
     output += `PTU: ${receipt.footer.ptuNumber}\n`;
     output += `Accred: ${receipt.footer.birAccreditation}\n`;
     output += `${receipt.footer.message.padStart(25)}\n`;

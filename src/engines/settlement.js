@@ -7,6 +7,7 @@ import auditEngine from './audit/index.js';
 import authEngine from './auth.js';
 import rbacEngine from './rbac.js';
 import reportingEngine from './reports/index.js';
+import customerEngine from './CustomerEngine.js';
 
 class SettlementEngine {
   /**
@@ -19,7 +20,20 @@ class SettlementEngine {
     if (!order) throw new Error('Order not found.');
     if (order.status === 'PAID') throw new Error('Order already paid.');
 
-    const { discounts = [] } = paymentData;
+    const { discounts = [], redemptionPoints = 0, customerId } = paymentData;
+    
+    // 1. Handle Points Redemption (if any)
+    if (redemptionPoints > 0 && customerId) {
+      const discountAmount = customerEngine.redeemPoints(customerId, redemptionPoints, orderId);
+      discounts.push({
+        type: 'AMOUNT',
+        value: discountAmount / (order.items.reduce((sum, i) => sum + i.qty, 0)), // Distribute per item or handle as bill-level
+        reason: 'Loyalty Redemption',
+        isBillLevel: true,
+        amount: discountAmount
+      });
+    }
+
     const isVatExempt = discounts.some(d => d.type === 'SC' || d.type === 'PWD');
 
     // 1. Calculate Discounts
@@ -35,14 +49,21 @@ class SettlementEngine {
       return { ...item, netPrice, itemDisc };
     });
 
-    // 2. Handle SC/PWD Special Logic (Bill-level for this baseline)
+    // 2. Handle SC/PWD and Loyalty Special Logic
     const scDiscount = discounts.find(d => d.type === 'SC' || d.type === 'PWD');
+    const billLevelDiscounts = discounts.filter(d => d.isBillLevel);
+    
     let finalTaxBasis = order.subtotal - totalDiscount;
 
     if (scDiscount) {
       const { netPrice, discountAmount, totalReduction } = pricingEngine.applySCDiscount(order.subtotal);
       finalTaxBasis = netPrice;
       totalDiscount = totalReduction;
+    } else if (billLevelDiscounts.length > 0) {
+      billLevelDiscounts.forEach(d => {
+        totalDiscount += d.amount;
+      });
+      finalTaxBasis = order.subtotal - totalDiscount;
     }
 
     // 3. Calculate Taxes
@@ -60,7 +81,13 @@ class SettlementEngine {
     };
 
     // 5. Compose Receipt Data
-    const receiptObj = receiptEngine.composeReceipt(orderDataForReceipt, taxBreakdown);
+    const loyaltyAccount = paymentData.customerId ? customerEngine.getLoyaltyAccount(paymentData.customerId) : null;
+    const receiptObj = receiptEngine.composeReceipt(orderDataForReceipt, taxBreakdown, { 
+      loyalty: loyaltyAccount ? {
+        pointsEarned: Math.floor(paymentData.amountPaid / 100),
+        newBalance: loyaltyAccount.pointsBalance + Math.floor(paymentData.amountPaid / 100)
+      } : null
+    });
     
     // 6. Render Receipt Content
     const receiptContent = receiptEngine.renderText(receiptObj);
@@ -75,7 +102,8 @@ class SettlementEngine {
       content: receiptContent,
       paymentMethod: paymentData.method,
       amountPaid: paymentData.amountPaid,
-      change: paymentData.amountPaid - taxBreakdown.total
+      change: paymentData.amountPaid - taxBreakdown.total,
+      customerId: paymentData.customerId
     };
 
     // 8. Update Order Status
@@ -84,7 +112,12 @@ class SettlementEngine {
     // 9. Deduct Inventory
     inventoryEngine.deductFromOrder(order);
     
-    // 10. Log Audit
+    // 10. Award Loyalty Points
+    if (paymentData.customerId) {
+      customerEngine.awardPoints(paymentData.customerId, paymentData.amountPaid, finalReceipt.receiptNumber);
+    }
+    
+    // 11. Log Audit
     auditEngine.log('ORDER_SETTLED', `Order ${orderId} settled. Receipt: ${finalReceipt.receiptNumber}`, {
       orderId,
       receiptNumber: finalReceipt.receiptNumber,

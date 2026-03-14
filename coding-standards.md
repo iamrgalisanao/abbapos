@@ -19,7 +19,7 @@ Follow the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guar
 - **Feature Branches (`feat/*`)**: Use for new features or commercial capabilities.
 - **Fix Branches (`fix/*`)**: Use for bug fixes or repairs.
 - **Compliance Branches (`compliance/*`)**: Use for critical tax, receipt, or audit rule changes.
-- **Workflow**: Create a branch from `main` -> Implement & Verify -> Update Documentation -> Merge via PR/Review.
+- **Workflow**: Create a branch from `main` -> Implement & Verify -> **Sync Documentation (Changelog, Roadmap, Progress)** -> Merge via PR/Review.
 - **Commit Messages**: Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`, `chore:`).
 
 ## Testing

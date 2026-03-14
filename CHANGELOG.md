@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+- **Customer Engagement (Loyalty & Profiles)**: Automated point accrual (₱100 = 1pt) and redemption logic. Includes searchable customer profiles by phone number and receipt-integrated point balances.
 - **Supplier & Purchase Workflows**: Integrated vendor management and formal Purchase Order (PO) tracking with automated inventory reconciliation upon receipt.
 - **Reporting Dashboards (X-Read/Z-Read)**: BIR-compliant daily sales reporting with sequential Z-counters, grand total accumulators, and tax/discount breakdown snapshots.
 - **Security & Hygiene Cleanup**:

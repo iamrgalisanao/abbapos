@@ -26,8 +26,8 @@ This document outlines the development phases and feature statuses for the BIR-C
 - [x] **Reporting Dashboards**: X-Read and Z-Read.
 
 ## Phase 4: Customer Engagement & Scale (In Progress)
-- [ ] **Store Credits / Loyalty**: Customer point systems and credits.
-- [ ] **Customer Profiles**: Tracking history and preferences.
+- [x] **Store Credits / Loyalty**: Customer point systems and credits.
+- [x] **Customer Profiles**: Tracking history and preferences.
 - [ ] **Accounting export**: (Quickbooks/Xero/SAP).
 - [ ] **Web/Online ordering**: Integration.
 - [ ] Multi-branch central reporting.
