@@ -6,6 +6,7 @@ import inventoryEngine from './inventory/index.js';
 import auditEngine from './audit/index.js';
 import authEngine from './auth.js';
 import rbacEngine from './rbac.js';
+import reportingEngine from './reports/index.js';
 
 class SettlementEngine {
   /**
@@ -90,6 +91,9 @@ class SettlementEngine {
       total: taxBreakdown.total,
       discount: totalDiscount
     });
+
+    // 11. Record for Reporting
+    reportingEngine.recordTransaction(finalReceipt);
 
     return {
       receipt: finalReceipt,
