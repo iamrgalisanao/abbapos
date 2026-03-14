@@ -134,6 +134,26 @@ class InventoryEngine {
   getStock(itemId) {
     return this.stockLevels.get(itemId) || 0;
   }
+
+  /**
+   * Processes a received Purchase Order and reconciles stock.
+   * @param {Object} po - The PurchaseOrder object.
+   * @param {string} managerId - Manager authorizing the receipt.
+   */
+  receivePurchaseOrder(po, managerId) {
+    if (po.status !== 'RECEIVED') {
+      throw new Error(`Inventory Error: Cannot receive a PO with status ${po.status}. Must be RECEIVED.`);
+    }
+
+    po.items.forEach(item => {
+      this.adjustStock(item.itemId, item.qty, 'RECEIVE', `PO Receipt: ${po.id}`, managerId);
+    });
+
+    auditEngine.log('INVENTORY_PO_RECONCILED', `Inventory reconciled for PO ${po.id}.`, {
+      poId: po.id,
+      managerId
+    });
+  }
 }
 
 export default new InventoryEngine();
