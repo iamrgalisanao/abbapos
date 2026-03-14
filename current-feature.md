@@ -1,22 +1,22 @@
-# Current Feature: Void & Refund Policy
+# Current Feature: Pricing & Promo Engine
 
-**Work Type:** Compliance Work
-**Epic:** Compliance Core
+**Work Type:** Feature Work
+**Epic:** Commercial Operations
 **Status:** In Progress
-**Compliance impact:** Critical
+**Compliance impact:** High
 **Receipt impact:** High
 **Tax impact:** High
 **Audit required:** Yes
 **Offline-sensitive:** Yes
-**Manager approval required:** Yes
+**Manager approval required:** Yes (for manual overrides)
 
 ## Business Objective
-Implement the BIR-compliant Void and Refund policy. This ensures that transactions can be cancelled or returned following strict audit trails and supervisor approvals, with proper counter-receipts or negative adjustments.
+Implement a robust Pricing and Promotions Engine to handle item-level discounts, bill-level discounts, and promotional rules (e.g., Senior Citizen/PWD exemptions) while maintaining strict tax calculation integrity.
 
 ## Acceptance Criteria
-- [ ] Implement `voidTransaction` in `SettlementEngine`.
-- [ ] Implement `refundOrder` in `SettlementEngine`.
-- [ ] Require manager/supervisor authentication for void/refund actions.
-- [ ] Generate "Void" or "Return" receipts with reference to the original sequence.
-- [ ] Log every void/refund attempt (success or failure) in the `ComplianceAuditEngine`.
-- [ ] Ensure sequential numbering is maintained or properly accounted for in BIR reports.
+- [ ] Implement `PricingEngine` with support for percentage and fixed-amount discounts.
+- [ ] Implement Senior Citizen and PWD discount logic (VAT exemption + 20% discount).
+- [ ] Ensure Tax Engine consumes net-of-discount prices for VAT calculation.
+- [ ] Update `ReceiptEngine` to display discount breakdowns and tax exemptions clearly.
+- [ ] Log all discount applications in the `ComplianceAuditEngine`.
+- [ ] Support manager approval for manual price overrides or excessive discounts.

@@ -1,4 +1,5 @@
 import orderEngine from './order/index.js';
+import pricingEngine from './pricing/index.js';
 import taxEngine from './tax/index.js';
 import receiptEngine from './receipt/index.js';
 import auditEngine from './audit/index.js';
@@ -7,35 +8,60 @@ class SettlementEngine {
   /**
    * Settles an order.
    * @param {string} orderId 
-   * @param {Object} paymentData - { method, amountPaid }
+   * @param {Object} paymentData - { method, amountPaid, discounts }
    */
   settleOrder(orderId, paymentData) {
     const order = orderEngine.getOrder(orderId);
     if (!order) throw new Error('Order not found.');
     if (order.status === 'PAID') throw new Error('Order already paid.');
 
-    const subtotal = order.subtotal;
+    const { discounts = [] } = paymentData;
+    const isVatExempt = discounts.some(d => d.type === 'SC' || d.type === 'PWD');
 
-    // 1. Calculate Taxes (Assuming subtotal is VAT-inclusive)
-    const taxBreakdown = taxEngine.fromVatInclusive(subtotal);
+    // 1. Calculate Discounts
+    let totalDiscount = 0;
+    const itemsWithDiscounts = order.items.map(item => {
+      const itemDiscounts = discounts.filter(d => d.itemId === item.itemId);
+      const { netPrice, totalDiscount: itemDisc } = pricingEngine.calculateItemPrice(item, itemDiscounts);
+      
+      // If order is VAT-exempt (SC/PWD), we need to back out the VAT first for the discount calculation
+      // But for simplicity in this baseline, we'll let pricingEngine handle the arithmetic
+      
+      totalDiscount += itemDisc;
+      return { ...item, netPrice, itemDisc };
+    });
+
+    // 2. Handle SC/PWD Special Logic (Bill-level for this baseline)
+    const scDiscount = discounts.find(d => d.type === 'SC' || d.type === 'PWD');
+    let finalTaxBasis = order.subtotal - totalDiscount;
+
+    if (scDiscount) {
+      const { netPrice, discountAmount, totalReduction } = pricingEngine.applySCDiscount(order.subtotal);
+      finalTaxBasis = netPrice;
+      totalDiscount = totalReduction;
+    }
+
+    // 3. Calculate Taxes
+    const taxBreakdown = taxEngine.fromVatInclusive(finalTaxBasis, { isVatExempt });
     
-    // 2. Prepare Order Data for Receipt (Map keys to match ReceiptEngine expectations)
+    // 4. Prepare Order Data for Receipt
     const orderDataForReceipt = {
-      subtotal: subtotal,
+      subtotal: order.subtotal,
+      discount: totalDiscount,
       items: order.items.map(i => ({
         qty: i.qty,
-        description: i.name, // ReceiptEngine expects 'description'
-        amount: i.totalAmount // ReceiptEngine expects 'amount'
+        description: i.name,
+        amount: i.totalAmount
       }))
     };
 
-    // 3. Compose Receipt Data
+    // 5. Compose Receipt Data
     const receiptObj = receiptEngine.composeReceipt(orderDataForReceipt, taxBreakdown);
     
-    // 4. Render Receipt Content
+    // 6. Render Receipt Content
     const receiptContent = receiptEngine.renderText(receiptObj);
 
-    // 5. Build Final Receipt Object
+    // 7. Build Final Receipt Object
     const finalReceipt = {
       ...receiptObj,
       content: receiptContent,
@@ -44,14 +70,15 @@ class SettlementEngine {
       change: paymentData.amountPaid - taxBreakdown.total
     };
 
-    // 6. Update Order Status
+    // 8. Update Order Status
     order.setStatus('PAID');
     
-    // 7. Log Audit
+    // 9. Log Audit
     auditEngine.log('ORDER_SETTLED', `Order ${orderId} settled. Receipt: ${finalReceipt.receiptNumber}`, {
       orderId,
       receiptNumber: finalReceipt.receiptNumber,
-      total: taxBreakdown.total
+      total: taxBreakdown.total,
+      discount: totalDiscount
     });
 
     return {

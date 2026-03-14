@@ -108,6 +108,9 @@ class ReceiptEngine {
     
     output += `---------------------------\n`;
     output += `Subtotal: ${receipt.totals.subtotal.toFixed(2).padStart(15)}\n`;
+    if (receipt.totals.discount > 0) {
+      output += `Discount: -${receipt.totals.discount.toFixed(2).padStart(14)}\n`;
+    }
     output += `VAT (12%): ${receipt.totals.vatAmount.toFixed(2).padStart(14)}\n`;
     if (receipt.totals.serviceCharge > 0) {
       output += `Srv Chg: ${receipt.totals.serviceCharge.toFixed(2).padStart(16)}\n`;

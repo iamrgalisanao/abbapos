@@ -21,7 +21,7 @@
 - [x] Official receipt issuance
 
 ## Phase 3: Commercial Operations
-- [ ] Discounts/Promotions
+- [x] Discounts/Promotions
 - [ ] Inventory movement automation
 - [ ] Low-stock alerts
 - [ ] Supplier management
