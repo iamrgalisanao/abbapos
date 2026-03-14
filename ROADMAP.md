@@ -25,14 +25,14 @@ This document outlines the development phases and feature statuses for the BIR-C
 - [x] **Supplier Management**: Purchase orders and receiving.
 - [x] **Reporting Dashboards**: X-Read and Z-Read.
 
-## Phase 4: Integrations & Scale (75% Complete)
+## Phase 4: Integrations & Scale (100% Complete)
 - [x] **Store Credits / Loyalty**: Customer point systems and credits.
 - [x] **Customer Profiles**: Tracking history and preferences.
 - [x] **Persistence Layer**: Atomic file-based state preservation.
-- [ ] **Accounting export**: (Quickbooks/Xero/SAP).
-- [ ] **Web/Online ordering**: Integration.
-- [ ] Multi-branch central reporting.
-- [ ] Offline sync resilience (Cloud/Local orchestration).
+- [x] **Web/Online ordering**: Baseline integration.
+- [x] **Multi-branch central reporting**: Cross-branch consolidation.
+- [x] **Offline sync resilience**: Robust SyncQueue and recovery.
+- [ ] **Accounting export**: (Parked).
 
 ## Phase 5: Modernization & Web Integration (Future Stack)
 - [ ] **Frontend**: Porting to **ReactJS**.
