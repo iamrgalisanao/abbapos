@@ -1,12 +1,13 @@
 # Progress Report
 
-## Current Status: Phase 2 Completed
-- Core F&B Sales (Catalog, Order Lifecycle, Split/Merge, Settlement, Receipt) fully implemented and verified.
-- BIR compliance for F&B workflows (Sequential numbering, Audit logs) is in place.
+## Current Status: Phase 3 In Progress ( approx. 15% of Phase 3)
+- Phase 1 & 2: 100% Completed (See [ROADMAP.md](ROADMAP.md)).
+- Core compliance engines verified (Identity, Auth, RBAC, Tax, Receipt, Audit, Void/Refund).
+- Pricing & Promo Engine implemented (Standard & SC/PWD discounts).
 
 ## Next Steps
-- Begin Phase 3: Commercial Operations (Discounts, Inventory, Reporting).
-- Define implementation plan for Discounts/Promotions engine.
+- Implement **Inventory Movement Automation**.
+- Update **Reporting Engine** for X-Read/Z-Read support.
 
 ## Blockers
 - None.
