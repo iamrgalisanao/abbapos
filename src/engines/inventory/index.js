@@ -1,9 +1,12 @@
 import InventoryLog from '../../models/InventoryLog.js';
+import InventoryAlert from '../../models/InventoryAlert.js';
+import catalogEngine from '../catalog/index.js';
 import auditEngine from '../audit/index.js';
 
 class InventoryEngine {
   constructor() {
     this.stockLevels = new Map(); // itemId -> currentQty
+    this.alerts = new Map();      // itemId -> InventoryAlert (active)
     this.logs = [];
   }
 
@@ -41,7 +44,50 @@ class InventoryEngine {
         qty: item.qty,
         orderId: order.id
       });
+
+      this.checkThreshold(item.itemId, newQty);
     });
+  }
+
+  /**
+   * Checks if stock level has breached the item threshold.
+   * @param {string} itemId 
+   * @param {number} currentQty 
+   */
+  checkThreshold(itemId, currentQty) {
+    const item = catalogEngine.getItem(itemId);
+    if (!item || !item.trackInventory) return;
+
+    if (currentQty <= item.alertThreshold) {
+      if (!this.alerts.has(itemId)) {
+        const alert = new InventoryAlert({
+          itemId,
+          currentQty,
+          threshold: item.alertThreshold
+        });
+        this.alerts.set(itemId, alert);
+
+        auditEngine.log('ALERT_LOW_STOCK', `LOW STOCK ALERT: Item ${itemId} has reached ${currentQty} units (Threshold: ${item.alertThreshold})`, {
+          itemId,
+          currentQty,
+          threshold: item.alertThreshold,
+          alertId: alert.id
+        });
+      }
+    } else {
+      // If stock is replenished above threshold, resolve the alert
+      if (this.alerts.has(itemId)) {
+        const alert = this.alerts.get(itemId);
+        alert.resolve();
+        this.alerts.delete(itemId);
+        
+        auditEngine.log('ALERT_RESOLVED', `Low stock alert resolved for ${itemId}. New balance: ${currentQty}`, {
+          itemId,
+          currentQty,
+          threshold: item.alertThreshold
+        });
+      }
+    }
   }
 
   /**
@@ -76,6 +122,8 @@ class InventoryEngine {
       type,
       managerId
     });
+
+    this.checkThreshold(itemId, newQty);
 
     return { success: true, newQty };
   }

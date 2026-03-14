@@ -21,7 +21,7 @@ This document outlines the development phases and feature statuses for the BIR-C
 ## Phase 3: Commercial Operations (In Progress)
 - [x] **Discounts/Promotions**: Percentage/Fixed and SC/PWD exemptions.
 - [x] **Inventory Movement**: Automatic deduction on sale.
-- [ ] **Low-stock Alerts**: Real-time notifications for kitchen/stock personnel.
+- [x] **Low-stock Alerts**: Real-time notifications for kitchen/stock personnel.
 - [ ] **Supplier Management**: Purchase orders and receiving.
 - [ ] **Store Credits / Loyalty**: Customer point systems and credits.
 - [ ] **Customer Profiles**: Tracking history and preferences.
