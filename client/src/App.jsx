@@ -10,13 +10,26 @@ function App() {
   const [status, setStatus] = useState(null)
   const [cartItems, setCartItems] = useState([])
   const [syncStatus, setSyncStatus] = useState('IDLE') // IDLE, SYNCING, SUCCESS, ERROR
-  const [showCheckout, setShowCheckout] = useState(false)
-  const [receipt, setReceipt] = useState(null)
-  const [transactions, setTransactions] = useState([]) // For offline sync queue
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('CASH')
   const [tenderedAmount, setTenderedAmount] = useState('')
+  
+  // Customization State
+  const [customizingItem, setCustomizingItem] = useState(null)
+  const [selectedModifiers, setSelectedModifiers] = useState({})
+  
+  const MODIFIER_OPTIONS = {
+    'ITEM-001': { // Classic Burger
+      required: { temp: ['Rare', 'Med-Rare', 'Medium', 'Med-Well', 'Well-done'] },
+      extras: [
+        { id: 'ext-cheese', name: 'Extra Cheese', price: 1.00 },
+        { id: 'ext-bacon', name: 'Crispy Bacon', price: 2.00 },
+        { id: 'ext-avo', name: 'Avocado', price: 1.50 },
+        { id: 'ext-gf', name: 'Gluten-Free Bun', price: 2.00 }
+      ]
+    }
+  }
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
@@ -83,23 +96,62 @@ function App() {
     }
   }
 
-  const addToCart = (product) => {
+  const handleProductClick = (product) => {
+    if (MODIFIER_OPTIONS[product.id]) {
+      setCustomizingItem(product)
+      setSelectedModifiers({
+        temp: 'Medium', // Default required
+        extras: []
+      })
+    } else {
+      addToCart(product, null)
+    }
+  }
+
+  const addToCart = (product, modifiers) => {
     setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id)
+      // Create a unique instance ID if modifiers exist to separate them in cart
+      const customInstanceId = modifiers 
+        ? `${product.id}-${modifiers.temp}-${modifiers.extras.join('-')}` 
+        : product.id
+
+      // Calculate new base price based on extras
+      let calculatedPrice = product.price
+      if (modifiers && modifiers.extras.length > 0) {
+        const itemOptions = MODIFIER_OPTIONS[product.id].extras
+        modifiers.extras.forEach(extId => {
+          const addon = itemOptions.find(opt => opt.id === extId)
+          if (addon) calculatedPrice += addon.price
+        })
+      }
+
+      const existing = prev.find(item => item.cartId === customInstanceId)
       if (existing) {
         return prev.map(item => 
-          item.id === product.id 
+          item.cartId === customInstanceId 
             ? { ...item, qty: item.qty + 1 } 
             : item
         )
       }
-      return [...prev, { ...product, qty: 1 }]
+
+      // Display name with temp
+      const finalName = modifiers ? `${product.name} (${modifiers.temp})` : product.name
+
+      return [...prev, { 
+        ...product, 
+        cartId: customInstanceId, 
+        name: finalName,
+        price: calculatedPrice,
+        qty: 1,
+        modifiers: modifiers 
+      }]
     })
+    setCustomizingItem(null)
   }
 
-  const updateQty = (id, delta) => {
+  const updateQty = (cartId, delta) => {
     setCartItems(prev => prev.map(item => {
-      if (item.id === id) {
+      if (item.cartId === cartId) {
         const newQty = Math.max(0, item.qty + delta)
         return { ...item, qty: newQty }
       }
@@ -186,7 +238,7 @@ function App() {
 
           <div className="catalog-grid">
             {filteredCatalog.map(product => (
-              <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
+              <div key={product.id} className="product-card" onClick={() => handleProductClick(product)}>
                 <div className="product-image-placeholder" style={{backgroundImage: `url('${product.image}')`}}>
                   <div className="product-hover-overlay">
                     <span className="material-symbols-outlined">add_circle</span>
@@ -224,7 +276,7 @@ function App() {
               </div>
             ) : (
               cartItems.map(item => (
-                <div key={item.id} className="cart-item">
+                <div key={item.cartId} className="cart-item">
                   <div className="cart-item-icon">
                     <span className="material-symbols-outlined">{item.category === 'Drinks' ? 'coffee_maker' : item.category === 'Pizza' ? 'local_pizza' : 'lunch_dining'}</span>
                   </div>
@@ -233,11 +285,11 @@ function App() {
                     <p>${item.price.toFixed(2)}</p>
                   </div>
                   <div className="cart-qty-controls">
-                    <button className="cart-qty-btn" onClick={() => updateQty(item.id, -1)}>
+                    <button className="cart-qty-btn" onClick={() => updateQty(item.cartId, -1)}>
                       <span className="material-symbols-outlined" style={{fontSize: '16px'}}>remove</span>
                     </button>
                     <span className="cart-qty-value">{item.qty}</span>
-                    <button className="cart-qty-btn add" onClick={() => updateQty(item.id, 1)}>
+                    <button className="cart-qty-btn add" onClick={() => updateQty(item.cartId, 1)}>
                       <span className="material-symbols-outlined" style={{fontSize: '16px'}}>add</span>
                     </button>
                   </div>
@@ -295,6 +347,92 @@ function App() {
           {syncStatus === 'SUCCESS' && <span style={{color: 'var(--success)', marginLeft: '8px'}}>✓</span>}
         </button>
       </footer>
+
+      {/* Item Customization Modal */}
+      {customizingItem && (
+        <div className="modal-overlay">
+          <div className="modal-content customize-modal">
+            <div className="customize-header">
+              <h2>Customize Item: <span>{customizingItem.name}</span></h2>
+              <button className="btn-close-icon" onClick={() => setCustomizingItem(null)}>
+                 <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="customize-body">
+              {MODIFIER_OPTIONS[customizingItem.id].required && (
+                <div className="modifier-group">
+                   <h3>Select Meat Temp <span className="req-tag">(Required)</span></h3>
+                   <div className="pill-group">
+                     {MODIFIER_OPTIONS[customizingItem.id].required.temp.map(tempOpt => (
+                       <button 
+                        key={tempOpt} 
+                        className={`opt-pill ${selectedModifiers.temp === tempOpt ? 'active' : ''}`}
+                        onClick={() => setSelectedModifiers(prev => ({...prev, temp: tempOpt}))}
+                       >
+                         {tempOpt}
+                       </button>
+                     ))}
+                   </div>
+                </div>
+              )}
+
+              {MODIFIER_OPTIONS[customizingItem.id].extras && (
+                <div className="modifier-group">
+                   <h3>Extras & Add-ons <span className="opt-tag">(Optional)</span></h3>
+                   <div className="addon-list">
+                     {MODIFIER_OPTIONS[customizingItem.id].extras.map(extra => {
+                        const isSelected = selectedModifiers.extras.includes(extra.id)
+                        return (
+                          <label key={extra.id} className={`addon-row ${isSelected ? 'selected' : ''}`}>
+                            <div className="addon-info">
+                              <span className="material-symbols-outlined checkbox">
+                                {isSelected ? 'check_box' : 'check_box_outline_blank'}
+                              </span>
+                              <span className="name">{extra.name}</span>
+                            </div>
+                            <span className="price">+${extra.price.toFixed(2)}</span>
+                            <input 
+                              type="checkbox" 
+                              checked={isSelected}
+                              onChange={(e) => {
+                                setSelectedModifiers(prev => {
+                                  const newExtras = e.target.checked 
+                                    ? [...prev.extras, extra.id] 
+                                    : prev.extras.filter(id => id !== extra.id)
+                                  return {...prev, extras: newExtras}
+                                })
+                              }}
+                              style={{display: 'none'}}
+                            />
+                          </label>
+                        )
+                     })}
+                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="customize-footer">
+              <div className="custom-total">
+                 <span className="label">Total Item Price:</span>
+                 <span className="amount">
+                   ${(customizingItem.price + selectedModifiers.extras.reduce((sum, extId) => {
+                     const addon = MODIFIER_OPTIONS[customizingItem.id].extras.find(e => e.id === extId)
+                     return sum + (addon ? addon.price : 0)
+                   }, 0)).toFixed(2)}
+                 </span>
+              </div>
+              <button 
+                className="btn-complete glow"
+                onClick={() => addToCart(customizingItem, selectedModifiers)}
+              >
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payment Checkout Modal Overlay */}
       {paymentModalOpen && (
