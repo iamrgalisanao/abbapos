@@ -39,5 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `AuditEngine`: Immutable/protected compliance logs.
 
 ### Fixed
+- Fixed POS startup race condition by refactoring `main.jsx` to await asynchronous persistence bootstrap before mounting the UI.
+- Resolved Vite 500 Internal Server Error by correctly exporting `@abbapos/core/persistence` and updating module resolution in `main.jsx`.
 - Fixed property mapping mismatch between `OrderLineItem` and `ReceiptEngine` formatting logic.
 - Resolved sequential numbering reset issues during terminal initialization.

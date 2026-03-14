@@ -19,7 +19,12 @@ class AuthEngine {
    * @returns {User|null}
    */
   login(username, password) {
-    const inputHash = Buffer.from(password).toString('base64');
+    let inputHash;
+    if (typeof window !== 'undefined' && typeof window.btoa === 'function') {
+      inputHash = window.btoa(password);
+    } else {
+      inputHash = Buffer.from(password).toString('base64');
+    }
     const userData = this.users.find(u => u.username === username && u.passwordHash === inputHash);
     
     if (userData) {

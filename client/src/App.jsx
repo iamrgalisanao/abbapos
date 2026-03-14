@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import identityEngine from '@abbapos/core/identity'
-import authEngine from '@abbapos/core/auth'
-import orderEngine from '@abbapos/core/order'
-import settlementEngine from '@abbapos/core/settlement'
+import identityEngine from '../../core/engines/identity.js'
+import authEngine from '../../core/engines/auth.js'
+import orderEngine from '../../core/engines/order/index.js'
+import settlementEngine from '../../core/engines/settlement.js'
 import { MOCK_CATALOG } from './data/catalog'
 import './App.css'
 
@@ -16,6 +16,19 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [operationsMenuOpen, setOperationsMenuOpen] = useState(false)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  
+  // Operations State
+  const [selectedCartItem, setSelectedCartItem] = useState(null)
+  const [heldOrders, setHeldOrders] = useState([])
+  const [cartDiscount, setCartDiscount] = useState(null) // { type: 'PERCENT'|'AMOUNT'|'SENIOR', value }
+  
+  // Sub-Modals
+  const [managerAuthOpen, setManagerAuthOpen] = useState(false)
+  const [managerPin, setManagerPin] = useState('')
+  const [pendingAction, setPendingAction] = useState(null)
+  const [resumeModalOpen, setResumeModalOpen] = useState(false)
+  const [discountModalOpen, setDiscountModalOpen] = useState(false)
+
   const [paymentMethod, setPaymentMethod] = useState('CASH')
   const [tenderedAmount, setTenderedAmount] = useState('')
   
@@ -37,12 +50,85 @@ function App() {
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
-    try { authEngine.login('cashier1', 'password') } catch { /* ignore */ }
   }, [])
 
+  // Pricing Calculations
   const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0)
-  const cartVat = cartSubtotal * 0.12 
-  const cartTotal = cartSubtotal + cartVat
+  
+  let cartVat = 0
+  let cartTotal = 0
+
+  if (cartDiscount && cartDiscount.type === 'SENIOR') {
+    // SC/PWD: VAT Exempt on subtotal, then 20% off
+    const vatExemptAmount = cartSubtotal / 1.12
+    cartTotal = vatExemptAmount * 0.80
+    cartVat = 0
+  } else {
+    let discountAmount = 0
+    if (cartDiscount) {
+      if (cartDiscount.type === 'PERCENT') discountAmount = cartSubtotal * (cartDiscount.value / 100)
+      if (cartDiscount.type === 'AMOUNT') discountAmount = cartDiscount.value
+    }
+    const netSubtotal = Math.max(0, cartSubtotal - discountAmount)
+    cartVat = netSubtotal * 0.12
+    cartTotal = netSubtotal + cartVat
+  }
+
+  // --- Operations Menu Logic ---
+  
+  const handleVoidItemClick = () => {
+    setOperationsMenuOpen(false)
+    if (!selectedCartItem) {
+      alert('Please select an item from the cart to void.')
+      return
+    }
+    setPendingAction({ type: 'VOID', payload: selectedCartItem })
+    setManagerAuthOpen(true)
+  }
+
+  const handleHoldOrder = () => {
+    if (cartItems.length === 0) return
+    setHeldOrders(prev => [...prev, { id: `HLD-${Date.now()}`, items: cartItems, timestamp: new Date().toLocaleTimeString() }])
+    setCartItems([])
+    setCartDiscount(null)
+    setSelectedCartItem(null)
+    setOperationsMenuOpen(false)
+  }
+
+  const handleResumeClick = () => {
+    setOperationsMenuOpen(false)
+    setResumeModalOpen(true)
+  }
+
+  const handleDiscountClick = () => {
+    setOperationsMenuOpen(false)
+    setDiscountModalOpen(true)
+  }
+
+  const executeManagerAction = () => {
+    if (managerPin !== '1234') { // Mock RBAC PIN Check
+      alert('Invalid Manager PIN!')
+      return
+    }
+    
+    if (pendingAction.type === 'VOID') {
+      // Void item
+      setCartItems(prev => prev.filter(item => item.cartId !== pendingAction.payload))
+      setSelectedCartItem(null)
+    }
+    
+    setManagerAuthOpen(false)
+    setManagerPin('')
+    setPendingAction(null)
+  }
+
+  const handleResumeOrder = (heldOrder) => {
+    setCartItems(heldOrder.items)
+    setHeldOrders(prev => prev.filter(h => h.id !== heldOrder.id))
+    setResumeModalOpen(false)
+  }
+
+  // --- End Operations Logic ---
 
   const handleKeypadPress = (key) => {
     if (key === 'backspace') {
@@ -280,7 +366,11 @@ function App() {
               </div>
             ) : (
               cartItems.map(item => (
-                <div key={item.cartId} className="cart-item">
+                <div 
+                  key={item.cartId} 
+                  className={`cart-item ${selectedCartItem === item.cartId ? 'selected-cart-item' : ''}`}
+                  onClick={() => setSelectedCartItem(item.cartId)}
+                >
                   <div className="cart-item-icon">
                     <span className="material-symbols-outlined">{item.category === 'Drinks' ? 'coffee_maker' : item.category === 'Pizza' ? 'local_pizza' : 'lunch_dining'}</span>
                   </div>
@@ -315,6 +405,12 @@ function App() {
                 <span className="label">VAT (12%)</span>
                 <span className="value">${cartVat.toFixed(2)}</span>
               </div>
+              {cartDiscount && (
+                <div className="totals-row discount-row" style={{color: '#ff3b30'}}>
+                  <span className="label">Discount ({cartDiscount.label})</span>
+                  <span className="value">-</span>
+                </div>
+              )}
               <div className="totals-grand">
                 <span className="label">Grand Total</span>
                 <span className="value">${cartTotal.toFixed(2)}</span>
@@ -524,17 +620,116 @@ function App() {
         </div>
       )}
 
-      {/* Checkout Receipt Overlay */}
+      {/* Digital Receipt Overlay */}
       {showCheckout && receipt && (
-        <div className="modal-overlay">
-          <div className="modal-content receipt-modal">
-            <h2>Payment Successful</h2>
-            <div className="receipt-preview">
-              <pre>{receipt.content}</pre>
+        <div className="modal-overlay blurred-overlay">
+          <div className="modal-content receipt-modal-v2">
+            
+            <div className="receipt-paper">
+              <div className="receipt-header-v2">
+                <h2>{receipt.store.name}</h2>
+                <p>{receipt.store.address}</p>
+                <p>TIN: {receipt.store.tin}</p>
+                <p>OR#: {receipt.receiptNumber}</p>
+                <p>Date: {new Date(receipt.timestamp).toLocaleString()}</p>
+                <p>Cashier: 01-Admin</p>
+              </div>
+
+              <div className="receipt-divider">================================</div>
+
+              <div className="receipt-items-list">
+                <div className="receipt-items-header">
+                  <span className="col-qty">QTY</span>
+                  <span className="col-name">ITEM</span>
+                  <span className="col-price">PRICE</span>
+                </div>
+                {receipt.items.map((item, idx) => (
+                  <div key={idx} className="receipt-line-item">
+                    <span className="col-qty">{item.qty}</span>
+                    <span className="col-name">{item.description}</span>
+                    <span className="col-price">{item.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="receipt-divider">--------------------------------</div>
+              
+              <div className="receipt-financials">
+                <div className="receipt-row">
+                  <span>Subtotal:</span>
+                  <span>{receipt.totals.subtotal.toFixed(2)}</span>
+                </div>
+                {receipt.totals.discount > 0 && (
+                  <div className="receipt-row receipt-discount">
+                    <span>Discount:</span>
+                    <span>-{receipt.totals.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="receipt-row">
+                  <span>VATable Sales:</span>
+                  <span>{receipt.totals.netOfVat.toFixed(2)}</span>
+                </div>
+                <div className="receipt-row">
+                  <span>VAT (12%):</span>
+                  <span>{receipt.totals.vatAmount.toFixed(2)}</span>
+                </div>
+                <div className="receipt-row receipt-grand">
+                  <span>Grand Total:</span>
+                  <span>{receipt.totals.total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="receipt-divider">================================</div>
+
+              <div className="receipt-payment-info">
+                <div className="receipt-row">
+                  <span>Payment:</span>
+                  <span>{receipt.paymentMethod}</span>
+                </div>
+                <div className="receipt-row">
+                  <span>Tendered:</span>
+                  <span>{receipt.amountPaid.toFixed(2)}</span>
+                </div>
+                <div className="receipt-row">
+                  <span>Change:</span>
+                  <span>{receipt.change.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="receipt-footer">
+                <p>MSN: {receipt.terminal.serialNumber}</p>
+                <p>PTU: {receipt.footer.ptuNumber} ({receipt.terminal.ptuDate})</p>
+                <p>Accred: {receipt.footer.birAccreditation} ({receipt.terminal.accreditationDate})</p>
+                <p>Thank you for dining with us!</p>
+                <p>THIS IS AN OFFICIAL RECEIPT</p>
+              </div>
+              <div className="receipt-torn-edge"></div>
             </div>
-            <button className="btn-primary" onClick={() => setShowCheckout(false)}>
-              START NEXT ORDER
-            </button>
+
+            <div className="receipt-actions">
+              <div className="receipt-actions-row">
+                <button className="btn-receipt-action">
+                  <span className="material-symbols-outlined">print</span>
+                  Print
+                </button>
+                <button className="btn-receipt-action">
+                  <span className="material-symbols-outlined">mail</span>
+                  Email
+                </button>
+              </div>
+              <button 
+                className="btn-new-order glow" 
+                onClick={() => {
+                  setShowCheckout(false);
+                  setCartItems([]);
+                  setCartDiscount(null);
+                  setTenderedAmount('');
+                }}
+              >
+                START NEW ORDER
+              </button>
+            </div>
+
           </div>
         </div>
       )}
@@ -545,19 +740,19 @@ function App() {
           <div className="modal-content operations-modal">
             <h2 className="operations-title">Operations Menu</h2>
             <div className="operations-grid">
-              <button className="btn-op btn-void" onClick={() => { alert('Void prompt triggered'); setOperationsMenuOpen(false); }}>
+              <button className="btn-op btn-void" onClick={handleVoidItemClick}>
                 <span className="material-symbols-outlined">remove_shopping_cart</span>
                 <span>Void Item</span>
               </button>
-              <button className="btn-op btn-neutral" onClick={() => { alert('Hold Order triggered'); setOperationsMenuOpen(false); }}>
+              <button className="btn-op btn-neutral" onClick={handleHoldOrder} disabled={cartItems.length === 0}>
                 <span className="material-symbols-outlined">pause_circle</span>
                 <span>Hold Order</span>
               </button>
-              <button className="btn-op btn-neutral" onClick={() => { alert('Resume Order triggered'); setOperationsMenuOpen(false); }}>
+              <button className="btn-op btn-neutral" onClick={handleResumeClick} disabled={heldOrders.length === 0}>
                 <span className="material-symbols-outlined">play_circle</span>
                 <span>Resume Order</span>
               </button>
-              <button className="btn-op btn-accent" onClick={() => { alert('Discount selector triggered'); setOperationsMenuOpen(false); }}>
+              <button className="btn-op btn-accent" onClick={handleDiscountClick}>
                 <span className="material-symbols-outlined">loyalty</span>
                 <span>Apply Discount</span>
               </button>
@@ -566,6 +761,83 @@ function App() {
               <button className="btn-transparent-close" onClick={() => setOperationsMenuOpen(false)}>
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manager Auth Modal */}
+      {managerAuthOpen && (
+        <div className="modal-overlay blurred-overlay">
+          <div className="modal-content auth-modal">
+            <h2>Manager Authorization Required</h2>
+            <p>Please enter your Manager PIN to proceed with this action.</p>
+            <input 
+              type="password" 
+              maxLength="4" 
+              value={managerPin} 
+              onChange={e => setManagerPin(e.target.value)}
+              className="pin-input"
+              placeholder="••••"
+              autoFocus
+            />
+            <div className="modal-actions-row">
+              <button className="btn-cancel" onClick={() => { setManagerAuthOpen(false); setManagerPin(''); }}>Cancel</button>
+              <button className="btn-auth-confirm" onClick={executeManagerAction}>Authorize</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resume Order Modal */}
+      {resumeModalOpen && (
+        <div className="modal-overlay blurred-overlay">
+          <div className="modal-content list-modal">
+            <h2>Select Held Order</h2>
+            {heldOrders.length === 0 ? <p>No held orders found.</p> : (
+              <div className="held-orders-list">
+                {heldOrders.map(h => (
+                  <div key={h.id} className="held-order-card" onClick={() => handleResumeOrder(h)}>
+                    <div className="held-info">
+                      <h4>{h.id}</h4>
+                      <span>Hold Time: {h.timestamp}</span>
+                    </div>
+                    <div className="held-qty">{h.items.length} Items</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="modal-actions-row">
+              <button className="btn-transparent-close" onClick={() => setResumeModalOpen(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Apply Discount Modal */}
+      {discountModalOpen && (
+        <div className="modal-overlay blurred-overlay">
+          <div className="modal-content list-modal">
+            <h2>Select Order Discount</h2>
+            <div className="discount-grid">
+              <button className="btn-discount" onClick={() => { setCartDiscount({ type: 'PERCENT', value: 10, label: '10% Off' }); setDiscountModalOpen(false); }}>
+                <h3>10% Off</h3>
+                <span>Loyalty</span>
+              </button>
+              <button className="btn-discount" onClick={() => { setCartDiscount({ type: 'PERCENT', value: 20, label: '20% Off' }); setDiscountModalOpen(false); }}>
+                <h3>20% Off</h3>
+                <span>Promo</span>
+              </button>
+              <button className="btn-discount sc-pwd" onClick={() => { setCartDiscount({ type: 'SENIOR', value: 0, label: 'SC/PWD (20% + VAT Ex)' }); setDiscountModalOpen(false); }}>
+                <h3>SC / PWD</h3>
+                <span>20% Off + VAT Exempt</span>
+              </button>
+              <button className="btn-discount clear" onClick={() => { setCartDiscount(null); setDiscountModalOpen(false); }}>
+                <h3>Remove Discount</h3>
+              </button>
+            </div>
+            <div className="modal-actions-row" style={{marginTop:'24px'}}>
+              <button className="btn-transparent-close" onClick={() => setDiscountModalOpen(false)}>Close</button>
             </div>
           </div>
         </div>

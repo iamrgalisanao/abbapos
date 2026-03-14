@@ -40,7 +40,7 @@
 - [x] Relational Data Sync (SQLite/MySQL)
 
 ## Phase 6: Web Interface Core (React Frontend)
-- [ ] Product Catalog UI
-- [ ] Cart & Order Line Management
+- [x] Product Catalog UI
+- [x] Cart & Order Line Management
 - [x] Checkout & Payment Modal
 - [x] Automated Hybrid Synchronization

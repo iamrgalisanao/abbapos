@@ -35,3 +35,10 @@ This sweep audited core engines against the newly established [Security Scanning
 ### [LOW] Missing Limit Guards for Discounts
 - **Location**: [pricing/index.js](src/engines/pricing/index.js#L26)
 - **Status**: RESOLVED (Added logic guards to clamp discounts to 100% and log `PRICE_WARNING` audits)
+
+## 4. UI & Initialization Lifecycle (Critical Fixes)
+
+### [CRITICAL] Initialization Race Condition in POS Startup
+- **Finding**: The POS was attempting to process orders before the asynchronous persistence layer finished hydrating engine states. Manual identity registration was being overwritten by an empty state during bootstrap.
+- **Location**: `client/src/main.jsx`, `client/src/App.jsx`
+- **Status**: RESOLVED (Refactored startup to use an `async init()` block in `main.jsx` that awaits `persistenceManager.bootstrap()` before mounting the React tree)

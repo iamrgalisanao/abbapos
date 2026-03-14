@@ -23,6 +23,8 @@
     "./audit": "./engines/audit/index.js",
     "./auth": "./engines/auth.js",
     "./settlement": "./engines/settlement.js",
-    "./pricing": "./engines/pricing/index.js"
+    "./pricing": "./engines/pricing/index.js",
+    "./persistence": "./engines/PersistenceManager.js",
+    "./engines/PersistenceManager.js": "./engines/PersistenceManager.js"
   }
 }
