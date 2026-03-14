@@ -20,7 +20,7 @@
 - **Workflow**: Create a branch from `main` -> Implement & Verify -> Update Documentation -> Merge via PR/Review.
 - **Commit Messages**: Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`, `chore:`).
 
-## Test Expectations
-- Every feature must have unit and integration tests.
-- Sales flows require end-to-end validation.
-- Receipt output must be verified for all changes.
+## Testing
+- Strictly follow the formal [testing-standards.md](testing-standards.md).
+- Every feature must have a corresponding verification script in the `tests/` directory.
+- Regression tests must be run for any changes to core engines (Tax, Receipt, Settlement).
