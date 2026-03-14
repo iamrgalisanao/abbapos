@@ -1166,3 +1166,137 @@ body {
   box-shadow: 0 0 25px rgba(157, 37, 244, 0.6);
   padding: 16px 40px;
 }
+
+/* Cart Action Buttons */
+.cart-action-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-operations {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-operations:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-charge {
+  flex: 2;
+  /* Existing styles are overridden below for flex layout */
+  width: auto;
+  margin-top: 0;
+}
+
+/* Operations Modal */
+.operations-modal {
+  width: 90%;
+  max-width: 600px;
+  background: rgba(15, 15, 20, 0.85);
+  padding: 40px;
+  text-align: center;
+  border: 1px solid var(--glass-border);
+}
+
+.operations-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.btn-op {
+  padding: 24px 20px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-op .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.btn-op.btn-void {
+  background: rgba(255, 59, 48, 0.05);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff3b30;
+}
+
+.btn-op.btn-void:hover {
+  background: rgba(255, 59, 48, 0.15);
+  box-shadow: 0 0 15px rgba(255, 59, 48, 0.2);
+}
+
+.btn-op.btn-neutral {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.btn-op.btn-neutral:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-op.btn-accent {
+  background: rgba(157, 37, 244, 0.15);
+  border: 1px solid rgba(157, 37, 244, 0.5);
+  color: #df9cff;
+}
+
+.btn-op.btn-accent:hover {
+  background: rgba(157, 37, 244, 0.3);
+  box-shadow: 0 0 20px rgba(157, 37, 244, 0.4);
+  color: white;
+}
+
+.operations-footer {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 24px;
+}
+
+.btn-transparent-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 24px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.btn-transparent-close:hover {
+  color: white;
+  border-bottom-color: var(--primary);
+}

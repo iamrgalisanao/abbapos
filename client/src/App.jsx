@@ -14,6 +14,7 @@ function App() {
   const [receipt, setReceipt] = useState(null)
   const [transactions, setTransactions] = useState([]) // For offline sync queue
   const [activeCategory, setActiveCategory] = useState('All Items')
+  const [operationsMenuOpen, setOperationsMenuOpen] = useState(false)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('CASH')
   const [tenderedAmount, setTenderedAmount] = useState('')
@@ -319,9 +320,14 @@ function App() {
                 <span className="value">${cartTotal.toFixed(2)}</span>
               </div>
             </div>
-            <button className="btn-charge" disabled={cartItems.length === 0} onClick={openPaymentModal}>
-              <span className="material-symbols-outlined">payments</span> CHARGE
-            </button>
+            <div className="cart-action-buttons">
+              <button className="btn-operations" onClick={() => setOperationsMenuOpen(true)}>
+                <span className="material-symbols-outlined">more_horiz</span> OPTIONS
+              </button>
+              <button className="btn-charge" disabled={cartItems.length === 0} onClick={openPaymentModal}>
+                <span className="material-symbols-outlined">payments</span> CHARGE
+              </button>
+            </div>
           </div>
         </aside>
 
@@ -529,6 +535,38 @@ function App() {
             <button className="btn-primary" onClick={() => setShowCheckout(false)}>
               START NEXT ORDER
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Operations Menu Modal */}
+      {operationsMenuOpen && (
+        <div className="modal-overlay blurred-overlay">
+          <div className="modal-content operations-modal">
+            <h2 className="operations-title">Operations Menu</h2>
+            <div className="operations-grid">
+              <button className="btn-op btn-void" onClick={() => { alert('Void prompt triggered'); setOperationsMenuOpen(false); }}>
+                <span className="material-symbols-outlined">remove_shopping_cart</span>
+                <span>Void Item</span>
+              </button>
+              <button className="btn-op btn-neutral" onClick={() => { alert('Hold Order triggered'); setOperationsMenuOpen(false); }}>
+                <span className="material-symbols-outlined">pause_circle</span>
+                <span>Hold Order</span>
+              </button>
+              <button className="btn-op btn-neutral" onClick={() => { alert('Resume Order triggered'); setOperationsMenuOpen(false); }}>
+                <span className="material-symbols-outlined">play_circle</span>
+                <span>Resume Order</span>
+              </button>
+              <button className="btn-op btn-accent" onClick={() => { alert('Discount selector triggered'); setOperationsMenuOpen(false); }}>
+                <span className="material-symbols-outlined">loyalty</span>
+                <span>Apply Discount</span>
+              </button>
+            </div>
+            <div className="operations-footer">
+              <button className="btn-transparent-close" onClick={() => setOperationsMenuOpen(false)}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
