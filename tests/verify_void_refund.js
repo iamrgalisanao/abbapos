@@ -1,9 +1,9 @@
-import catalogEngine from './src/engines/catalog/index.js';
-import identityEngine from './src/engines/identity.js';
-import authEngine from './src/engines/auth.js';
-import orderEngine from './src/engines/order/index.js';
-import settlementEngine from './src/engines/settlement.js';
-import receiptEngine from './src/engines/receipt/index.js';
+import catalogEngine from '../src/engines/catalog/index.js';
+import identityEngine from '../src/engines/identity.js';
+import authEngine from '../src/engines/auth.js';
+import orderEngine from '../src/engines/order/index.js';
+import settlementEngine from '../src/engines/settlement.js';
+import receiptEngine from '../src/engines/receipt/index.js';
 
 console.log('--- Void & Refund Policy Verification Test ---');
 

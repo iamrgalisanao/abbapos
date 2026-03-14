@@ -1,8 +1,8 @@
-import catalogEngine from './src/engines/catalog/index.js';
-import identityEngine from './src/engines/identity.js';
-import authEngine from './src/engines/auth.js';
-import orderEngine from './src/engines/order/index.js';
-import settlementEngine from './src/engines/settlement.js';
+import catalogEngine from '../src/engines/catalog/index.js';
+import identityEngine from '../src/engines/identity.js';
+import authEngine from '../src/engines/auth.js';
+import orderEngine from '../src/engines/order/index.js';
+import settlementEngine from '../src/engines/settlement.js';
 
 console.log('--- Pricing & Promo Engine Verification Test ---');
 

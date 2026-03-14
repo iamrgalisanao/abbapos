@@ -1,9 +1,9 @@
-import catalogEngine from './src/engines/catalog/index.js';
-import identityEngine from './src/engines/identity.js';
-import authEngine from './src/engines/auth.js';
-import orderEngine from './src/engines/order/index.js';
-import settlementEngine from './src/engines/settlement.js';
-import inventoryEngine from './src/engines/inventory/index.js';
+import catalogEngine from '../src/engines/catalog/index.js';
+import identityEngine from '../src/engines/identity.js';
+import authEngine from '../src/engines/auth.js';
+import orderEngine from '../src/engines/order/index.js';
+import settlementEngine from '../src/engines/settlement.js';
+import inventoryEngine from '../src/engines/inventory/index.js';
 
 console.log('--- Inventory Movement Automation Verification Test ---');
 
