@@ -1,0 +1,14 @@
+{
+  "name": "abbapos",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "BIR-Compliant F&B POS",
+  "scripts": {
+    "verify:identity": "node verify_identity.js",
+    "verify:auth": "node verify_auth.js",
+    "verify:tax": "node verify_tax.js",
+    "verify:sales": "node verify_sales_flow.js",
+    "verify:audit": "node verify_audit.js"
+  },
+  "dependencies": {}
+}
