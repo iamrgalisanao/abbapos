@@ -397,7 +397,7 @@ All protected business math must live in centralized engines, not scattered UI h
 
 ## S — Stylize
 
-Implement clearly and consistently.
+Implement clearly and consistently, incorporating **Code Hygiene** and **Security Scanning** as defined in [security-hygiene-guardrails.md](security-hygiene-guardrails.md).
 
 ### POS-Specific Stylize Rules
 
@@ -409,6 +409,8 @@ Implement clearly and consistently.
 * no direct inventory mutation without a traceable event,
 * no silent fallback that changes money values,
 * no weak naming around totals, discounts, charges, and tax.
+* No orphaned, duplicated, or abandoned business logic left after a task.
+* Mandatory design-stage security review for all sensitive actions.
 
 ---
 
@@ -711,6 +713,7 @@ A task is done only when all applicable items are true:
 * offline behavior verified if applicable,
 * report impact verified,
 * regression checks performed,
+* **Security & Hygiene**: Design-stage review completed and pre-merge hygiene sweep passed (no dead code).
 * docs/spec/context updated,
 * compliance matrix updated if needed,
 * review completed,
