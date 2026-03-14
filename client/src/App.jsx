@@ -14,31 +14,53 @@ function App() {
   const [receipt, setReceipt] = useState(null)
   const [transactions, setTransactions] = useState([]) // For offline sync queue
   const [activeCategory, setActiveCategory] = useState('All Items')
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('CASH')
+  const [tenderedAmount, setTenderedAmount] = useState('')
 
   useEffect(() => {
     setStatus(identityEngine.getStatus())
-    // Auto-login cashier for testing POS
-    try {
-      authEngine.login('cashier1', 'password')
-    } catch(e) {}
+    try { authEngine.login('cashier1', 'password') } catch(e) {}
   }, [])
 
-  const processCheckout = () => {
+  const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  const cartVat = cartSubtotal * 0.12 
+  const cartTotal = cartSubtotal + cartVat
+
+  const handleKeypadPress = (key) => {
+    if (key === 'backspace') {
+      setTenderedAmount(prev => prev.slice(0, -1))
+    } else if (key === 'exact') {
+      setTenderedAmount(cartTotal.toFixed(2))
+    } else {
+      setTenderedAmount(prev => prev + key)
+    }
+  }
+
+  const openPaymentModal = () => {
+    setPaymentMethod('CASH')
+    setTenderedAmount('')
+    setPaymentModalOpen(true)
+  }
+
+  const processTransaction = () => {
     try {
       const order = orderEngine.createOrder('DINE_IN')
-      
       cartItems.forEach(item => {
         orderEngine.addItem(order.id, item.id, item.qty, {})
       })
 
+      const tenderedFloat = parseFloat(tenderedAmount) || 0
+      
       const settlementDetails = {
-        method: 'CASH',
-        amountPaid: order.total
+        method: paymentMethod,
+        amountPaid: tenderedFloat
       }
       
       const { receipt: officialReceipt } = settlementEngine.settleOrder(order.id, settlementDetails)
       
       setReceipt(officialReceipt)
+      setPaymentModalOpen(false)
       setShowCheckout(true)
       
       const syncedOrder = {
@@ -98,10 +120,6 @@ function App() {
       setTimeout(() => setSyncStatus('IDLE'), 3000)
     }
   }
-
-  const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0)
-  const cartVat = cartSubtotal * 0.12 
-  const cartTotal = cartSubtotal + cartVat
 
   const filteredCatalog = activeCategory === 'All Items' 
     ? MOCK_CATALOG 
@@ -246,7 +264,7 @@ function App() {
                 <span className="value">${cartTotal.toFixed(2)}</span>
               </div>
             </div>
-            <button className="btn-charge" disabled={cartItems.length === 0} onClick={processCheckout}>
+            <button className="btn-charge" disabled={cartItems.length === 0} onClick={openPaymentModal}>
               <span className="material-symbols-outlined">payments</span> CHARGE
             </button>
           </div>
@@ -278,7 +296,88 @@ function App() {
         </button>
       </footer>
 
-      {/* Checkout Modal Overlay */}
+      {/* Payment Checkout Modal Overlay */}
+      {paymentModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content payment-modal">
+            <div className="payment-header">
+              <h2>Select Payment Method</h2>
+              <p>Choose a provider to complete the transaction</p>
+            </div>
+            
+            <div className="payment-method-grid">
+              {['CASH', 'CARD', 'QR PAY', 'LOYALTY'].map(method => (
+                <button 
+                  key={method}
+                  className={`payment-method-card ${paymentMethod === method ? 'active' : ''}`}
+                  onClick={() => setPaymentMethod(method)}
+                >
+                  <div className="method-icon">
+                    <span className="material-symbols-outlined">
+                      {method === 'CASH' ? 'payments' : method === 'CARD' ? 'credit_card' : method === 'QR PAY' ? 'qr_code_scanner' : 'loyalty'}
+                    </span>
+                  </div>
+                  <span>{method}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="payment-body">
+              <div className="amount-displays">
+                <div className="amount-box due">
+                  <span className="label">Total Amount Due</span>
+                  <div className="value-wrap">
+                    <span className="currency">$</span>
+                    <span className="amount">{cartTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+                <div className="amount-box tendered">
+                  <span className="label">TENDERED AMOUNT</span>
+                  <div className="value-wrap">
+                    <span className="currency">$</span>
+                    <input 
+                      type="text" 
+                      value={tenderedAmount} 
+                      readOnly 
+                      className="tendered-input"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="numeric-keypad">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0].map(key => (
+                  <button key={key} className="keypad-btn num" onClick={() => handleKeypadPress(key.toString())}>
+                    {key}
+                  </button>
+                ))}
+                <button className="keypad-btn backspace" onClick={() => handleKeypadPress('backspace')}>
+                  <span className="material-symbols-outlined">backspace</span>
+                </button>
+                <button className="keypad-btn exact-amount" onClick={() => handleKeypadPress('exact')}>
+                  Exact Amount
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={() => setPaymentModalOpen(false)}>
+                <span className="material-symbols-outlined" style={{fontSize: '18px'}}>close</span> CANCEL
+              </button>
+              <button 
+                className="btn-complete" 
+                onClick={processTransaction}
+                disabled={parseFloat(tenderedAmount || 0) < cartTotal}
+              >
+                COMPLETE TRANSACTION <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Receipt Overlay */}
       {showCheckout && receipt && (
         <div className="modal-overlay">
           <div className="modal-content receipt-modal">
