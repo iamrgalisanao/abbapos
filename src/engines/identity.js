@@ -1,5 +1,6 @@
 import Store from '../models/Store.js';
 import Terminal from '../models/Terminal.js';
+import persistenceManager from './PersistenceManager.js';
 
 /**
  * IdentityEngine handles the registration and verification of the Store and Terminal.
@@ -17,6 +18,7 @@ class IdentityEngine {
    */
   registerStore(config) {
     this.store = new Store(config);
+    persistenceManager.saveEngine('identity').catch(() => {});
     return this.store;
   }
 
@@ -26,6 +28,7 @@ class IdentityEngine {
    */
   registerTerminal(config) {
     this.terminal = new Terminal(config);
+    persistenceManager.saveEngine('identity').catch(() => {});
     return this.terminal;
   }
 
@@ -50,6 +53,25 @@ class IdentityEngine {
       store: this.store ? this.store.toJSON() : null,
       terminal: this.terminal ? this.terminal.toJSON() : null,
     };
+  }
+
+  exportState() {
+    return JSON.stringify({
+      store: this.store ? this.store.toJSON() : null,
+      terminal: this.terminal ? this.terminal.toJSON() : null,
+      isInitialized: this.isInitialized
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.store = state.store ? new Store(state.store) : null;
+      this.terminal = state.terminal ? new Terminal(state.terminal) : null;
+      this.isInitialized = state.isInitialized;
+    } catch (err) {
+      console.error('Identity Engine Error: Failed to import state.', err);
+    }
   }
 }
 

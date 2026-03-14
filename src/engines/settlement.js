@@ -8,6 +8,7 @@ import authEngine from './auth.js';
 import rbacEngine from './rbac.js';
 import reportingEngine from './reports/index.js';
 import customerEngine from './CustomerEngine.js';
+import persistenceManager from './PersistenceManager.js';
 
 class SettlementEngine {
   /**
@@ -127,6 +128,11 @@ class SettlementEngine {
 
     // 11. Record for Reporting
     reportingEngine.recordTransaction(finalReceipt);
+
+    // Auto-save state
+    persistenceManager.saveAll().catch(err => {
+      console.error('Persistence Error: Automatic save failed after settlement.', err);
+    });
 
     return {
       receipt: finalReceipt,

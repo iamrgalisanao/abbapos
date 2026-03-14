@@ -28,6 +28,7 @@ This document outlines the development phases and feature statuses for the BIR-C
 ## Phase 4: Customer Engagement & Scale (In Progress)
 - [x] **Store Credits / Loyalty**: Customer point systems and credits.
 - [x] **Customer Profiles**: Tracking history and preferences.
+- [x] **Persistence Layer**: Atomic file-based state preservation.
 - [ ] **Accounting export**: (Quickbooks/Xero/SAP).
 - [ ] **Web/Online ordering**: Integration.
 - [ ] Multi-branch central reporting.

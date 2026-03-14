@@ -54,6 +54,32 @@ class CatalogEngine {
   }
 
   /**
+   * Adds a single item to the catalog.
+   * @param {Object} itemData 
+   */
+  addItem(itemData) {
+    const item = new Item(itemData);
+    this.items.set(item.id, item);
+  }
+
+  exportState() {
+    return JSON.stringify({
+      categories: Array.from(this.categories.values()).map(c => c.toJSON()),
+      items: Array.from(this.items.values()).map(i => i.toJSON()),
+      initialized: this.initialized
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.loadCatalog(state);
+    } catch (err) {
+      console.error('Catalog Engine Error: Failed to import state.', err);
+    }
+  }
+
+  /**
    * Validates a selection of modifiers for an item.
    * @param {string} itemId 
    * @param {Object} selection - Map of groupId -> [modifierIds]

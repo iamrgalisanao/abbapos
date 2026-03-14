@@ -2,6 +2,7 @@ import InventoryLog from '../../models/InventoryLog.js';
 import InventoryAlert from '../../models/InventoryAlert.js';
 import catalogEngine from '../catalog/index.js';
 import auditEngine from '../audit/index.js';
+import persistenceManager from '../PersistenceManager.js';
 
 class InventoryEngine {
   constructor() {
@@ -46,6 +47,10 @@ class InventoryEngine {
       });
 
       this.checkThreshold(item.itemId, newQty);
+    });
+
+    persistenceManager.saveEngine('inventory').catch(err => {
+      console.error('Persistence Error: Failed to save inventory state.', err);
     });
   }
 
@@ -153,6 +158,30 @@ class InventoryEngine {
       poId: po.id,
       managerId
     });
+  }
+
+  exportState() {
+    return JSON.stringify({
+      stockLevels: Array.from(this.stockLevels.entries()),
+      alerts: Array.from(this.alerts.entries()).map(([k, v]) => [k, v.toJSON ? v.toJSON() : v]),
+      logs: this.logs.map(l => l.toJSON ? l.toJSON() : l)
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.stockLevels = new Map(state.stockLevels || []);
+      
+      const alertEntries = (state.alerts || []).map(([k, v]) => {
+        return [k, new InventoryAlert(v)];
+      });
+      this.alerts = new Map(alertEntries);
+
+      this.logs = (state.logs || []).map(l => new InventoryLog(l));
+    } catch (err) {
+      console.error('Inventory Engine Error: Failed to import state.', err);
+    }
   }
 }
 

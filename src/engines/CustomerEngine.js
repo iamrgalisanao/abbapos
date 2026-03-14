@@ -94,6 +94,28 @@ class CustomerEngine {
 
     return points; // 1:1 conversion for this baseline
   }
+
+  exportState() {
+    return JSON.stringify({
+      customers: Array.from(this.customers.entries()),
+      loyaltyAccounts: Array.from(this.loyaltyAccounts.entries()).map(([k, v]) => [k, v.toJSON ? v.toJSON() : v])
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.customers = new Map(state.customers || []);
+      
+      // Need to re-instantiate LoyaltyAccount objects to preserve methods
+      const loyaltyEntries = (state.loyaltyAccounts || []).map(([k, v]) => {
+        return [k, new LoyaltyAccount(v)];
+      });
+      this.loyaltyAccounts = new Map(loyaltyEntries);
+    } catch (err) {
+      console.error('Customer Engine Error: Failed to import state.', err);
+    }
+  }
 }
 
 export default new CustomerEngine();

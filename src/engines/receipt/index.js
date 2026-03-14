@@ -140,6 +140,23 @@ class ReceiptEngine {
     
     return output;
   }
+
+  exportState() {
+    return JSON.stringify({
+      currentSequence: this.currentSequence,
+      lastReceiptId: this.lastReceiptId
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.currentSequence = state.currentSequence || 0;
+      this.lastReceiptId = state.lastReceiptId;
+    } catch (err) {
+      console.error('Receipt Engine Error: Failed to import state.', err);
+    }
+  }
 }
 
 export default new ReceiptEngine();

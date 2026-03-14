@@ -1,0 +1,1 @@
+{"activeOrders":[["ORD-1773457329915",{"id":"ORD-1773457329915","terminalId":"T01","cashierId":"1","serviceType":"DINE_IN","tableNumber":"TABLE-1","status":"PAID","items":[{"itemId":"ITEM-001","name":"Durable Coffee","qty":2,"modifiers":[],"totalAmount":null}],"subtotal":null,"createdAt":"2026-03-14T03:02:09.915Z","updatedAt":"2026-03-14T03:02:09.926Z"}]]}

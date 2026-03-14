@@ -164,6 +164,22 @@ class OrderEngine {
   getAllActive() {
     return Array.from(this.activeOrders.values()).map(o => o.toJSON());
   }
+
+  exportState() {
+    return JSON.stringify({
+      activeOrders: Array.from(this.activeOrders.entries()).map(([k, v]) => [k, v.toJSON ? v.toJSON() : v])
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      // Simplified: in a real app, we'd Re-instantiate Order models
+      this.activeOrders = new Map(state.activeOrders || []);
+    } catch (err) {
+      console.error('Order Engine Error: Failed to import state.', err);
+    }
+  }
 }
 
 export default new OrderEngine();

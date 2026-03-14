@@ -1,6 +1,7 @@
 import AuditLog from '../../models/AuditLog.js';
 import identityEngine from '../identity.js';
 import authEngine from '../auth.js';
+import persistenceManager from '../PersistenceManager.js';
 
 class ComplianceAuditEngine {
   constructor() {
@@ -29,6 +30,11 @@ class ComplianceAuditEngine {
     // In-memory push for now
     this.logs.push(entry.toJSON());
     
+    // Auto-save audit state
+    persistenceManager.saveEngine('audit').catch(err => {
+      console.error('Persistence Error: Failed to save audit engine state.', err);
+    });
+
     // In a real environment, we would trigger a write to a secure storage here.
     console.log(`[AUDIT] ${entry.timestamp} | ${entry.userId} | ${entry.action} | ${entry.details}`);
     
@@ -60,6 +66,21 @@ class ComplianceAuditEngine {
       this.logs = JSON.parse(logsData);
     } catch (err) {
       console.error('Audit Engine Error: Failed to import logs.', err);
+    }
+  }
+
+  exportState() {
+    return JSON.stringify({
+      logs: this.logs
+    });
+  }
+
+  importState(stateData) {
+    try {
+      const state = JSON.parse(stateData);
+      this.logs = state.logs || [];
+    } catch (err) {
+      console.error('Audit Engine Error: Failed to import state.', err);
     }
   }
 }

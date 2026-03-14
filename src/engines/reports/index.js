@@ -128,9 +128,9 @@ class ReportingEngine {
   /**
    * Import state from persistence.
    */
-  importState(stateStr) {
+  importState(stateData) {
     try {
-      const state = JSON.parse(stateStr);
+      const state = JSON.parse(stateData);
       this.zCounter = state.zCounter || 0;
       this.grandTotal = state.grandTotal || 0;
       this.accumulators = state.accumulators || this.accumulators;
