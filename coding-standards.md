@@ -1,5 +1,7 @@
 # Coding Standards
 
+Follow the [Security Scanning and Code Hygiene Guardrails](security-hygiene-guardrails.md) for every change.
+
 ## Naming Conventions
 - Clear and descriptive names for variables and functions.
 - Use prefixes for compliance-sensitive logic if necessary.

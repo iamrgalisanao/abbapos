@@ -13,3 +13,4 @@
     3. Create or update a detailed record in `context/features/` or `context/fixes/`.
     4. Ensure `progress.md` reflects current completion percentage against the roadmap.
 - **Testing Enforcement**: Never mark a task as complete without creating/running a corresponding verification script in the `tests/` directory as per [testing-standards.md](testing-standards.md).
+- **Security & Hygiene Check**: AI must perform a design-stage security review and a pre-merge code hygiene sweep as defined in [security-hygiene-guardrails.md](security-hygiene-guardrails.md). No orphaned or duplicate code should remain after a task.

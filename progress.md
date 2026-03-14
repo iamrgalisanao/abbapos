@@ -5,10 +5,11 @@
 - Pricing & Promo Engine implemented.
 - Inventory Movement Automation implemented.
 - **Low-stock Alerts** implemented and verified.
+- **Security & Hygiene Guardrails** integrated into workflow.
 
 ## Next Steps
+- Perform an initial **Security & Hygiene Audit** of the current codebase.
 - Update **Reporting Engine** for X-Read/Z-Read support.
-- Implement **Supplier Management** basics.
 
 ## Blockers
 - None.

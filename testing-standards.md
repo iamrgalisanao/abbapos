@@ -19,6 +19,7 @@ Every feature must include tests for:
 2.  **Negative Path**: Unauthorized attempts, missing parameters, or invalid states.
 3.  **Boundary Cases**: Extreme values (zero prices, max discounts).
 4.  **Compliance Loop**: Verifying that audit logs were generated and receipt formatting is correct.
+5.  **Security Review**: Scanning for unauthorized access paths and insecure direct object access as per [security-hygiene-guardrails.md](security-hygiene-guardrails.md).
 
 ## 3. Integration Requirements
 Tests must initialize the following engines to create a realistic execution context:
