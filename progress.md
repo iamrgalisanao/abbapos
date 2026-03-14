@@ -7,8 +7,8 @@
 - Phase 4: Integrations & Scale - [/] 75%
 
 ## Next Steps
-- Implement **Multi-branch central reporting**.
-- Implement **Offline sync resilience**.
+- Implement- [x] Multi-branch central reporting
+- [/] Offline sync resilience (In Progress)
 
 ## Task Status (Phase 4)
 - [x] Customer Profile & Loyalty Engine
