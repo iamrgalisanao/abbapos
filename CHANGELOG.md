@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Inventory Movement Automation**: Automatic stock deduction upon order payment and manual adjustment support with manager approval authorization.
 - **Pricing & Promo Engine**: Support for item-level/bill-level discounts and BIR-compliant Senior Citizen/PWD exemptions (VAT-exempt + 20% discount).
 - **Void & Refund Policy**: Supervisor-authorized void/refund workflows with dedicated audit logging and receipt marking.
 - **Split/Merge Bill**: Ability to split items into new orders or merge orders back together.

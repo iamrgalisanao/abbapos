@@ -1,22 +1,22 @@
-# Current Feature: Pricing & Promo Engine
+# Current Feature: Inventory Movement Automation
 
 **Work Type:** Feature Work
 **Epic:** Commercial Operations
 **Status:** In Progress
-**Compliance impact:** High
-**Receipt impact:** High
-**Tax impact:** High
+**Compliance impact:** Medium
+**Receipt impact:** Low
+**Tax impact:** Low
 **Audit required:** Yes
 **Offline-sensitive:** Yes
-**Manager approval required:** Yes (for manual overrides)
+**Manager approval required:** Yes (for manual adjustments)
 
 ## Business Objective
-Implement a robust Pricing and Promotions Engine to handle item-level discounts, bill-level discounts, and promotional rules (e.g., Senior Citizen/PWD exemptions) while maintaining strict tax calculation integrity.
+Implement automatic inventory deduction upon successful sales finalization. This ensures real-time stock tracking and prevents over-selling or stock discrepancies.
 
 ## Acceptance Criteria
-- [ ] Implement `PricingEngine` with support for percentage and fixed-amount discounts.
-- [ ] Implement Senior Citizen and PWD discount logic (VAT exemption + 20% discount).
-- [ ] Ensure Tax Engine consumes net-of-discount prices for VAT calculation.
-- [ ] Update `ReceiptEngine` to display discount breakdowns and tax exemptions clearly.
-- [ ] Log all discount applications in the `ComplianceAuditEngine`.
-- [ ] Support manager approval for manual price overrides or excessive discounts.
+- [ ] Implement `InventoryEngine` to track stock levels per Item ID.
+- [ ] Create `InventoryLog` model to record all movements (SALE, RECEIVE, ADJUST).
+- [ ] Integrate `SettlementEngine` to automatically deduct stock on `ORDER_SETTLED`.
+- [ ] Support manual stock adjustments with mandatory reason codes and manager approval.
+- [ ] Implement a simple "Low Stock" alert threshold in the `Item` model or `InventoryEngine`.
+- [ ] Log all inventory changes to the `ComplianceAuditEngine`.

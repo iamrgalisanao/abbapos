@@ -2,6 +2,7 @@ import orderEngine from './order/index.js';
 import pricingEngine from './pricing/index.js';
 import taxEngine from './tax/index.js';
 import receiptEngine from './receipt/index.js';
+import inventoryEngine from './inventory/index.js';
 import auditEngine from './audit/index.js';
 
 class SettlementEngine {
@@ -72,8 +73,11 @@ class SettlementEngine {
 
     // 8. Update Order Status
     order.setStatus('PAID');
+
+    // 9. Deduct Inventory
+    inventoryEngine.deductFromOrder(order);
     
-    // 9. Log Audit
+    // 10. Log Audit
     auditEngine.log('ORDER_SETTLED', `Order ${orderId} settled. Receipt: ${finalReceipt.receiptNumber}`, {
       orderId,
       receiptNumber: finalReceipt.receiptNumber,

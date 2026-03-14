@@ -16,6 +16,8 @@ class Item {
     this.basePrice = config.basePrice;
     this.description = config.description || '';
     this.modifierGroups = config.modifierGroups || [];
+    this.trackInventory = config.trackInventory || false;
+    this.alertThreshold = config.alertThreshold || 0;
   }
 
   toJSON() {
@@ -26,6 +28,8 @@ class Item {
       basePrice: this.basePrice,
       description: this.description,
       modifierGroups: this.modifierGroups.map(mg => mg.toJSON()),
+      trackInventory: this.trackInventory,
+      alertThreshold: this.alertThreshold
     };
   }
 }
